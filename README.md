@@ -2,7 +2,7 @@
 
 C api for BeagleBone Black, enable/disable functions for gpio, analog, pwm, i2c and bbb tool and more...
 
-# bbb tool
+### bbb:
 
       BeagleBone Black                                                
       ----------------                                                
@@ -48,4 +48,10 @@ C api for BeagleBone Black, enable/disable functions for gpio, analog, pwm, i2c 
     sudo ./bbb --gpio 60 --get-direction                              
     sudo ./bbb --gpio 60 --set-value 1                                
     sudo ./bbb --gpio 60 --get-value                                  
-    sudo ./bbb --disable-gpio 60   
+    sudo ./bbb --disable-gpio 60    
+
+### Build:
+    
+    git clone https://github.com/vmolsa/lib-bbb.git
+    cd lib-bbb
+    make
