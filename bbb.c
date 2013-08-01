@@ -33,8 +33,34 @@
 #include <sys/stat.h>
 #include <fcntl.h>
 #include <errno.h>
+#include <wordexp.h>
 
 #include "bbb.h"
+
+//	Utils
+
+char *wildCardPath(char *path) {
+	size_t size = 0;
+	char *ptr = NULL;
+	static char ret[1024];
+	wordexp_t p;
+	struct stat st;
+
+	wordexp(path, &p, 0);
+
+	if (p.we_wordc > 0) {
+		size = strlen(*(p.we_wordv));
+
+		if (size < sizeof(ret) && stat(*(p.we_wordv), &st) == 0) {
+			memset(ret, 0, sizeof(ret));
+			memcpy(ret, *(p.we_wordv), size);
+			ptr = ret;
+		}
+	}
+
+	wordfree(&p);
+	return ptr;
+}
 
 //	Get Index
 
@@ -272,26 +298,29 @@ int enableADC() {
 	char path[128];
 	char *ptr = "cape-bone-iio";
 	int size = strlen(ptr);
+	char *wpath = NULL;
 
-	if ((fd = open(BBB_SLOTS, O_RDWR | O_APPEND)) < 0) {
-		return -1;
-	}
-
-	memset(buffer, 0, sizeof(buffer));
-
-	if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
-		return -1;
-	}
-
-	if (strncmp(buffer, ptr, size) != 0) {
-		LOG("Enabling ADC\n");
-
-		if (write(fd, ptr, size) != size) {
+	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+		if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
 			return -1;
 		}
-	}
 
-	return 0;
+		memset(buffer, 0, sizeof(buffer));
+
+		if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
+			return -1;
+		}
+
+		if (strncmp(buffer, ptr, size) != 0) {
+			LOG("Enabling ADC\n");
+
+			if (write(fd, ptr, size) != size) {
+				return -1;
+			}
+		}
+
+		return 0;
+	}
 }
 
 int getADC(int id) {
@@ -299,13 +328,13 @@ int getADC(int id) {
 	int ret = -1;
 	char buffer[128];
 	char path[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	memset(path, 0, sizeof(path));
 	snprintf(path, sizeof(path), "%s/AIN%d", BBB_HELPER, id);
 
-	if (stat(path, &st) == 0) {
-		if ((fd = open(path, O_RDONLY)) < 0) {
+	if ((wpath = wildCardPath(path)) != NULL) {
+		if ((fd = open(wpath, O_RDONLY)) < 0) {
 			return -1;
 		}
 
@@ -328,22 +357,21 @@ int enableI2Cdevice(int bus, unsigned char address, char *module) {
 	int ret = -1;
 	char path[128];
 	char ptr[128];
-
-	struct stat st;
+	char *wpath = NULL;
 
 	if (address > 0 && module != NULL) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/%d-00%.2x", BBB_I2CDEVICES, bus, address);
 
-		if (stat(path, &st) != 0 && errno == ENOENT) {
+		if ((wpath = wildCardPath(path)) == NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "/sys/bus/i2c/devices/i2c-%d/new_device", bus);
 
-			if (stat(path, &st) != 0) {
+			if ((wpath = wildCardPath(path)) == NULL) {
 				return -1;
 			}
 
-			if ((fd = open(path, O_WRONLY)) < 0) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
 
@@ -359,6 +387,8 @@ int enableI2Cdevice(int bus, unsigned char address, char *module) {
 			}
 
 			close(fd);
+		} else {
+			ret = 1;
 		}
 	}
 
@@ -370,40 +400,38 @@ int disableI2Cdevice(int bus, unsigned char address) {
 	int ret = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (address > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/%d-00%.2x", BBB_I2CDEVICES, bus, address);
 
-		if (stat(path, &st) == 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "/sys/bus/i2c/devices/i2c-%d/delete_device", bus);
 
-			if (stat(path, &st) != 0) {
-				return -1;
+			if ((wpath = wildCardPath(path)) != NULL) {
+				if ((fd = open(wpath, O_WRONLY)) < 0) {
+					return -1;
+				}
+
+				LOG("Disabling I2C device(%d), Address(0x%.2x)\n", bus, address);
+
+				memset(ptr, 0, sizeof(ptr));
+				ret = snprintf(ptr, sizeof(ptr), "0x%.2x", address);
+
+				if ((ret = write(fd, ptr, ret)) < 0) {
+					ret = -1;
+				} else {
+					ret = 0;
+				}
+
+				close(fd);
 			}
-
-			if ((fd = open(path, O_WRONLY)) < 0) {
-				return -1;
-			}
-
-			LOG("Disabling I2C device(%d), Address(0x%.2x)\n", bus, address);
-
-			memset(ptr, 0, sizeof(ptr));
-			ret = snprintf(ptr, sizeof(ptr), "0x%.2x", address);
-
-			if ((ret = write(fd, ptr, ret)) < 0) {
-				ret = -1;
-			} else {
-				ret = 0;
-			}
-
-			close(fd);
 		}
 	}
 
-	return -1;
+	return ret;
 }
 
 //	GPIO
@@ -413,32 +441,34 @@ int enableGpio(int gpio) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 	
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) != 0) {
+		if ((wpath = wildCardPath(path)) == NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "%s/export", BBB_GPIOP);
 
-			if ((fd = open(path, O_WRONLY)) < 0) {
-				return -1;
+			if ((wpath = wildCardPath(path)) != NULL) {
+				if ((fd = open(wpath, O_WRONLY)) < 0) {
+					return -1;
+				}
+
+				LOG("Enabling GPIO(%d)\n", gpio);
+
+				memset(ptr, 0, sizeof(ptr));
+				ret = snprintf(ptr, sizeof(ptr), "%d", gpio);
+
+				if (write(fd, ptr, ret) < 0) {
+					ret = -1;
+				} else {
+					ret = 0;
+				}
+
+				close(fd);
 			}
-
-			LOG("Enabling GPIO(%d)\n", gpio);
-
-			memset(ptr, 0, sizeof(ptr));
-			ret = snprintf(ptr, sizeof(ptr), "%d", gpio);
-
-			if (write(fd, ptr, ret) < 0) {
-				ret = -1;
-			} else {
-				ret = 0;
-			}
-
-			close(fd);			
 		}
 	}
 
@@ -450,32 +480,34 @@ int disableGpio(int gpio) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
-	
+	char *wpath = NULL;
+
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) == 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "%s/unexport", BBB_GPIOP);
 
-			if ((fd = open(path, O_WRONLY)) < 0) {
-				return -1;
-			}
+			if ((wpath = wildCardPath(path)) != NULL) {	
+				if ((fd = open(wpath, O_WRONLY)) < 0) {
+					return -1;
+				}
 
-			LOG("Disabling GPIO(%d)\n", gpio);
+				LOG("Disabling GPIO(%d)\n", gpio);
 
-			memset(ptr, 0, sizeof(ptr));
-			ret = snprintf(ptr, sizeof(ptr), "%d", gpio);
+				memset(ptr, 0, sizeof(ptr));
+				ret = snprintf(ptr, sizeof(ptr), "%d", gpio);
 
-			if (write(fd, ptr, ret) < 0) {
-				ret = -1;
-			} else {
-				ret = 0;
-			}
+				if (write(fd, ptr, ret) < 0) {
+					ret = -1;
+				} else {
+					ret = 0;
+				}
 
-			close(fd);			
+				close(fd);
+			}			
 		}
 	}
 
@@ -487,14 +519,14 @@ int setGpioDirection(int gpio, int direction) {
 	int fd = -1;
 	char path[128];
 	char *ptr = "IN";
-	struct stat st;
+	char *wpath = NULL;
 	
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/direction", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_WRONLY)) < 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
 
@@ -524,14 +556,14 @@ int getGpioDirection(int gpio) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/direction", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_RDONLY)) < 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
 
@@ -564,14 +596,14 @@ int setGpioValue(int gpio, int value) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (gpio > 0 && value >= 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/value", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_WRONLY)) < 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
 
@@ -596,14 +628,14 @@ int getGpioValue(int gpio) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/value", BBB_GPIOP, gpio);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_RDONLY)) < 0) {
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
 
@@ -633,42 +665,47 @@ int enablePwm(int header, int pin) {
 	char ptr[128];
 	char *pwm = "am33xx_pwm";
 	int size = strlen(pwm);
+	char *wpath = NULL;
 
-	if ((fd = open(BBB_SLOTS, O_RDWR | O_APPEND)) < 0) {
-		return -1;
-	}
+	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {	
+		if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
+			return -1;
+		}
 
-	memset(buffer, 0, sizeof(buffer));
+		memset(buffer, 0, sizeof(buffer));
 
-	if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
+		if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
+			close(fd);
+			return -1;
+		}
+
+		if (strncmp(buffer, pwm, size) != 0) {
+			LOG("Enabling PWM\n");
+
+			if (write(fd, pwm, size) != size) {
+				close(fd);
+				return -1;
+			}
+		}
+
+		memset(ptr, 0, sizeof(ptr));
+		ret = snprintf(ptr, sizeof(ptr), "bone_pwm_P%d_%d", header, pin);
+
+		if (strncmp(buffer, ptr, ret) != 0) {
+			LOG("Enabling PWM P%d_%d\n", header, pin);
+
+			if (write(fd, ptr, ret) != ret) {
+				close(fd);
+				return -1;
+			}
+		}
+
 		close(fd);
-		return -1;
+
+		return 0;
 	}
 
-	if (strncmp(buffer, pwm, size) != 0) {
-		LOG("Enabling PWM\n");
-
-		if (write(fd, pwm, size) != size) {
-			close(fd);
-			return -1;
-		}
-	}
-
-	memset(ptr, 0, sizeof(ptr));
-	ret = snprintf(ptr, sizeof(ptr), "bone_pwm_P%d_%d", header, pin);
-
-	if (strncmp(buffer, ptr, ret) != 0) {
-		LOG("Enabling PWM P%d_%d\n", header, pin);
-
-		if (write(fd, ptr, ret) != ret) {
-			close(fd);
-			return -1;
-		}
-	}
-
-	close(fd);
-
-	return 0;
+	return -1;
 }
 
 int setPwmPeriod(int header, int pin, uint64_t time) {
@@ -676,14 +713,14 @@ int setPwmPeriod(int header, int pin, uint64_t time) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (header > 0 && pin > 0) {
 		memset(path, 0, sizeof(path));
-		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/period", BBB_OCP2, header, pin);
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_WRONLY)) < 0) {
+		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
 
@@ -708,14 +745,14 @@ int setPwmDuty(int header, int pin, uint64_t time) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (header > 0 && pin > 0) {
 		memset(path, 0, sizeof(path));
-		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/duty", BBB_OCP2, header, pin);
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_WRONLY)) < 0) {
+		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
 
@@ -830,14 +867,14 @@ uint64_t getPwmPeriod(int header, int pin) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (header > 0 && pin > 0) {
 		memset(path, 0, sizeof(path));
-		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/period", BBB_OCP2, header, pin);
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_RDONLY)) < 0) {
+		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
 
@@ -862,14 +899,14 @@ uint64_t getPwmDuty(int header, int pin) {
 	int fd = -1;
 	char path[128];
 	char ptr[128];
-	struct stat st;
+	char *wpath = NULL;
 
 	if (header > 0 && pin > 0) {
 		memset(path, 0, sizeof(path));
-		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/duty", BBB_OCP2, header, pin);
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if (stat(path, &st) == 0) {
-			if ((fd = open(path, O_RDONLY)) < 0) {
+		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
 

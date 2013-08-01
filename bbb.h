@@ -5,9 +5,9 @@
 
 // 	BeagleBone Black Config
 
-#define BBB_SLOTS "/sys/devices/bone_capemgr.8/slots"		// FIXME => make it dynamic
-#define BBB_HELPER "/sys/devices/ocp.2/helper.14"		// FIXME => make it dynamic
-#define BBB_OCP2 "/sys/devices/ocp.2"				// FIXME => make it dynamic
+#define BBB_SLOTS "/sys/devices/bone_capemgr.*/slots"
+#define BBB_HELPER "/sys/devices/ocp.*/helper.*"
+#define BBB_OCP2 "/sys/devices/ocp.*"
 #define BBB_GPIOP "/sys/class/gpio"				
 #define BBB_I2CDEVICES "/sys/bus/i2c/devices"
 
