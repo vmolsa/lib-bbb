@@ -61,8 +61,8 @@ static struct option long_options[] = {
 	{ "pwm", 		required_argument, 0, '2' },
 	{ "set-period", 	required_argument, 0, '3' },
 	{ "set-duty", 		required_argument, 0, '4' },
-	{ "get-period", 	required_argument, 0, '5' },
-	{ "get-duty", 		required_argument, 0, '6' },
+	{ "get-period", 	no_argument, 0, '5' },
+	{ "get-duty", 		no_argument, 0, '6' },
 	{ 0, 0, 0, 0 }
 };
 
