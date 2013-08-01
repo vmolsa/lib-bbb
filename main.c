@@ -57,6 +57,12 @@ static struct option long_options[] = {
 	{ "get-direction",	no_argument, 0, 'C' },
 	{ "set-value",		required_argument, 0, 'v' },
 	{ "get-value",		no_argument, 0, 'V' },
+	{ "enable-pwm", 	required_argument, 0, '1' },
+	{ "pwm", 		required_argument, 0, '2' },
+	{ "set-period", 	required_argument, 0, '3' },
+	{ "set-duty", 		required_argument, 0, '4' },
+	{ "get-period", 	required_argument, 0, '5' },
+	{ "get-duty", 		required_argument, 0, '6' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -95,19 +101,36 @@ static char *help =
 "      --set-value <0 | 1>                                          \n"
 "      --get-value                                                  \n"
 "                                                                   \n"
+"   --enable-pwm <P[HEADER]_[NUM]>                                  \n"
+"   --pwm <P[HEADER]_[NUM]>                                         \n"
+"      --set-period <x[Hz][kHz][MHz]>                               \n"
+"      --set-duty <[0-100]>                                         \n"
+"      --get-period                                                 \n"
+"      --get-duty                                                   \n"
+"                                                                   \n"
 " Examples:                                                         \n"
+"                                                                   \n"
 " sudo ./bbb --enable-adc                                           \n"
 " sudo ./bbb --get-adc 2                                            \n"
+"                                                                   \n"
 " sudo ./bbb --enable-i2c-device 1 --address 0x53 --module adxl34x  \n"
 " sudo ./bbb --i2c-scan 1                                           \n"
 " sudo ./bbb --disable-i2c-device 1 --address 0x53                  \n"
-" sudo ./bbb --show-by-type-only pwm                                \n"
+"                                                                   \n"
+"      ./bbb --show-all                                             \n"
+"      ./bbb --show-pin P8_13                                       \n"
+"      ./bbb --show-by-type-only pwm                                \n"
+"                                                                   \n"
 " sudo ./bbb --enable-gpio 60                                       \n"
 " sudo ./bbb --gpio 60 --set-direction 1                            \n"
 " sudo ./bbb --gpio 60 --get-direction                              \n"
 " sudo ./bbb --gpio 60 --set-value 1                                \n"
 " sudo ./bbb --gpio 60 --get-value                                  \n"
 " sudo ./bbb --disable-gpio 60                                      \n"
+"                                                                   \n"
+" sudo ./bbb --enable-pwm P8_13                                     \n"
+" sudo ./bbb --pwm --set-period 50Hz --set-duty 50                  \n"
+" sudo ./bbb --pwm --get-period --get-duty                          \n"
 "\n";
 
 int main(int argc, char **argv) {
@@ -122,8 +145,14 @@ int main(int argc, char **argv) {
 	int setgpiovalue = -1;
 	int getgpiovalue = -1;
 	unsigned char address = 0;
-	char *module = NULL;
-	
+	char *module = NULL;	
+	int pwm_header = -1;
+	int pwm_pin = -1;
+	char *setpwmperiod = NULL;
+	int setpwmduty = -1;
+	int getpwmperiod = -1;
+	int getpwmduty = -1;
+
 	int option_index = 0;
 
 	if (argc == 1) {
@@ -200,6 +229,25 @@ int main(int argc, char **argv) {
 			case 'V':
 				getgpiovalue = 1;
 				break;
+			case '1':
+				enablePwm(getHeader(getIndexByStr(optarg)), getPin(getIndexByStr(optarg)));
+				break;
+			case '2':
+				pwm_header = getHeader(getIndexByStr(optarg));
+				pwm_pin = getPin(getIndexByStr(optarg));
+				break;
+			case '3':
+				setpwmperiod = optarg;
+				break;
+			case '4':
+				setpwmduty = atoi(optarg);
+				break;
+			case '5':
+				getpwmperiod = 1;
+				break;
+			case '6':
+				getpwmduty = 1;
+				break;
 			case 'h':
 			default:
 				LOG("%s\n", help);
@@ -264,6 +312,42 @@ int main(int argc, char **argv) {
 	if (getgpiovalue >= 0) {
 		if (gpio > 0) {
 			LOG("%d\n", getGpioValue(gpio)); 
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (setpwmperiod != NULL) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			setPwmHz(pwm_header, pwm_pin, setpwmperiod);
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (setpwmduty >= 0) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			setPwmPercent(pwm_header, pwm_pin, setpwmduty);
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (getpwmperiod >= 0) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			LOG("%s\n", getPwmHz(pwm_header, pwm_pin));
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (getpwmduty >= 0) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			LOG("%d%%\n", getPwmPercent(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;

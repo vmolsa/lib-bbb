@@ -116,6 +116,14 @@ int getIndexByName(char *name) {
 
 //	Index to values
 
+int getHeader(int index) {
+	if (index >= 0 && index <= bbb_table_size) {
+		return pinout_table[index].header;
+	}
+	
+	return -1;
+}
+
 int getPin(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].pin;
@@ -398,6 +406,8 @@ int disableI2Cdevice(int bus, unsigned char address) {
 	return -1;
 }
 
+//	GPIO
+
 int enableGpio(int gpio) {
 	int ret = -1;
 	int fd = -1;
@@ -608,6 +618,299 @@ int getGpioValue(int gpio) {
 
 			close(fd);
 		}
+	}
+
+	return ret;
+}
+
+//	PWM
+
+int enablePwm(int header, int pin) {
+	int fd = -1;
+	int ret = -1;
+	char buffer[4096];
+	char path[128];
+	char ptr[128];
+	char *pwm = "am33xx_pwm";
+	int size = strlen(pwm);
+
+	if ((fd = open(BBB_SLOTS, O_RDWR | O_APPEND)) < 0) {
+		return -1;
+	}
+
+	memset(buffer, 0, sizeof(buffer));
+
+	if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
+		close(fd);
+		return -1;
+	}
+
+	if (strncmp(buffer, pwm, size) != 0) {
+		LOG("Enabling PWM\n");
+
+		if (write(fd, pwm, size) != size) {
+			close(fd);
+			return -1;
+		}
+	}
+
+	memset(ptr, 0, sizeof(ptr));
+	ret = snprintf(ptr, sizeof(ptr), "bone_pwm_P%d_%d", header, pin);
+
+	if (strncmp(buffer, ptr, ret) != 0) {
+		LOG("Enabling PWM P%d_%d\n", header, pin);
+
+		if (write(fd, ptr, ret) != ret) {
+			close(fd);
+			return -1;
+		}
+	}
+
+	close(fd);
+
+	return 0;
+}
+
+int setPwmPeriod(int header, int pin, uint64_t time) {
+	int ret = -1;
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	struct stat st;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/period", BBB_OCP2, header, pin);
+
+		if (stat(path, &st) == 0) {
+			if ((fd = open(path, O_WRONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+			ret = snprintf(ptr, sizeof(ptr), "%" PRIu64, time);
+
+			if (write(fd, ptr, ret) < 0) {
+				ret = -1;
+			} else {
+				ret = 0;
+			}
+
+			close(fd);	
+		}
+	}
+
+	return ret;
+}
+
+int setPwmDuty(int header, int pin, uint64_t time) {
+	int ret = -1;
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	struct stat st;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/duty", BBB_OCP2, header, pin);
+
+		if (stat(path, &st) == 0) {
+			if ((fd = open(path, O_WRONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+			ret = snprintf(ptr, sizeof(ptr), "%" PRIu64, time);
+
+			if (write(fd, ptr, ret) < 0) {
+				ret = -1;
+			} else {
+				ret = 0;
+			}
+
+			close(fd);	
+		}
+	}
+
+	return ret;
+}
+
+int setPwmHz(int header, int pin, char *hz) {
+	uint64_t time = 0;
+	int i, size = 0;
+	char ptr[128];
+	char c;
+	int f, z = -1, h = -1, k = -1, m = -1, fl = -1;
+
+	if (header > 0 && pin > 0 && hz != NULL) {
+		i = size = strlen(hz);
+
+		if (size <= 0) {
+			return -1;
+		}
+
+		for (i = size, f = -1, c = hz[i]; i >= 0; i--, c = hz[i], f = -1) {
+			switch (c) {
+				case 'z':
+				case 'Z':
+					f = z = i;
+					break;
+				case 'h':
+				case 'H':
+					f = h = i;
+					break;
+				case 'k':
+				case 'K':
+					f = k = i;
+					break;
+				case 'm':
+				case 'M':
+					f = m = i;
+					break;
+				case '.':
+					f = fl = i;
+				default:
+					break;
+			}
+
+			if (f < 0 && (c < 48 || c > 57)) {
+				return -1;
+			}
+		}
+
+		if (z < 0 && h < 0 && k < 0 && m < 0) {
+			return setPwmPeriod(header, pin, (uint64_t) (Hz / atoi(hz)));
+		}
+
+		if (size >= 2 && h >= 0 && z >= 1) {
+			time = Hz;
+			size -= 2;
+			
+			if (k >= 0) {
+				time = kHz;
+				size--;
+			}
+
+			if (m >= 0) {
+				time = MHz;
+				size--;
+			}
+
+			if (size > 0) {
+				memset(ptr, 0, sizeof(ptr));
+				memcpy(ptr, hz, size);
+
+				if (fl > 0) {
+					time = (uint64_t) time / atof(ptr);
+				} else {
+					time = (uint64_t) time / atoi(ptr);
+				}
+			}
+
+			return setPwmPeriod(header, pin, time);
+		}
+	}
+
+	return -1;
+}
+
+int setPwmPercent(int header, int pin, int duty) {
+	uint64_t time = getPwmPeriod(header, pin);
+
+	if (header > 0 && pin > 0 && duty >= 0 && duty <= 100) {
+		return setPwmDuty(header, pin, ((time / 100) * duty));
+	}
+
+	return -1;
+}
+
+uint64_t getPwmPeriod(int header, int pin) {
+	uint64_t time = 0;
+
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	struct stat st;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/period", BBB_OCP2, header, pin);
+
+		if (stat(path, &st) == 0) {
+			if ((fd = open(path, O_RDONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+
+			if (read(fd, ptr, sizeof(ptr)) <= 0) {
+				close(fd);
+				return -1;
+			}
+
+			time = strtoull(ptr, NULL, 10);
+			close(fd);
+		}
+	}
+
+	return time;
+}
+
+uint64_t getPwmDuty(int header, int pin) {
+	uint64_t time = 0;
+
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	struct stat st;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.15/duty", BBB_OCP2, header, pin);
+
+		if (stat(path, &st) == 0) {
+			if ((fd = open(path, O_RDONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+
+			if (read(fd, ptr, sizeof(ptr)) <= 0) {
+				close(fd);
+				return -1;
+			}
+
+			time = strtoull(ptr, NULL, 10);
+			close(fd);
+		}
+	}
+
+	return time;
+}
+
+char *getPwmHz(int header, int pin) {
+	static char ptr[128];
+
+	if (header > 0 && pin > 0) {
+		uint64_t time = getPwmPeriod(header, pin);
+	
+		memset(ptr, 0, sizeof(ptr));
+		snprintf(ptr, sizeof(ptr), "%.3fHz", (double) (Hz / time));
+
+		return ptr;
+	}
+
+	return "undefined";
+}
+
+int getPwmPercent(int header, int pin) {
+	int ret = -1;
+
+	if (header > 0 && pin > 0) {	
+		uint64_t period = getPwmPeriod(header, pin);
+		uint64_t duty = getPwmDuty(header, pin);
+
+		ret = (int) ((duty / period) * 100);
 	}
 
 	return ret;

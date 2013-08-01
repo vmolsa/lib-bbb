@@ -1,14 +1,29 @@
 #ifndef _BBB_H
 #define _BBB_H
 
+#include <inttypes.h>
+
 // 	BeagleBone Black Config
 
 #define BBB_SLOTS "/sys/devices/bone_capemgr.8/slots"		// FIXME => make it dynamic
 #define BBB_HELPER "/sys/devices/ocp.2/helper.14"		// FIXME => make it dynamic
+#define BBB_OCP2 "/sys/devices/ocp.2"				// FIXME => make it dynamic
 #define BBB_GPIOP "/sys/class/gpio"				
 #define BBB_I2CDEVICES "/sys/bus/i2c/devices"
 
 //	EOC
+
+#ifndef Hz
+#define Hz 1000000000
+#endif
+
+#ifndef kHz
+#define kHz 1000000
+#endif
+
+#ifndef MHz
+#define MHz 1000
+#endif
 
 #ifndef LOG
 #define LOG(...) printf(__VA_ARGS__);
@@ -159,62 +174,77 @@ static int bbb_table_size = sizeof(pinout_table) / sizeof(bbb_pinout_gpio);
 
 //	Get Index
 
-int getIndexByStr(char *str);
-int getIndexByPin(int header, int pin);
-int getIndexByGpio(int gpio);
-int getIndexBySignalName(char *signalname);
-int getIndexByName(char *name);
+int getIndexByStr(char *str);							// P8_3       => 2
+int getIndexByPin(int header, int pin);						// 8, 3       => 2
+int getIndexByGpio(int gpio);							// 38         => 2
+int getIndexBySignalName(char *signalname);					// "GPIO1_6"  => 2
+int getIndexByName(char *name);							// "gpmc_ad6" => 2
 
 //	Index to values
 
-int getPin(int index);
-int getGpio(int index);
-bbb_pin_type getType1(int index);
-bbb_pin_type getType2(int index);
-bbb_pin_type getType3(int index);
-char *getSignalName(int index);
-char *getName(int index);
+int getHeader(int index);							// 2 => 8
+int getPin(int index);								// 2 => 3
+int getGpio(int index);								// 2 => 38
+bbb_pin_type getType1(int index);						// 2 => BBB_GPIO = 1 
+bbb_pin_type getType2(int index);						// 2 => BBB_GPIO = 1
+bbb_pin_type getType3(int index);						// 2 => BBB_GPIO = 1
+char *getSignalName(int index);							// 2 => "GPIO1_6"
+char *getName(int index);							// 2 => "gpmc_ad6"
 
 // 	Index to String Values
 
-char *getPinStrByIndex(int index);
-char *getGpioStrByIndex(int index);
-char *getTypeStrByIndex(int index);
-char *getSignalNameByIndex(int index);
-char *getNameByIndex(int index);
+char *getPinStrByIndex(int index);						// 2 => "P8_3"
+char *getGpioStrByIndex(int index);						// 2 => "38"
+char *getTypeStrByIndex(int index);						// 2 => "gpio gpio gpio"
+char *getSignalNameByIndex(int index);						// 2 => "GPIO1_6"
+char *getNameByIndex(int index);						// 2 => "gpmc_ad6"
 
 //	Types
 
-char *pinType2str(bbb_pin_type type);
-bbb_pin_type str2pinType(char *str);
+char *pinType2str(bbb_pin_type type);						// 2 => analog
+bbb_pin_type str2pinType(char *str);						// "analog" => 2
 
 //	ADC
 
-int enableADC();
-int getADC(int id);
+int enableADC();								// Enables Analog to Digital control
+int getADC(int id);  								// id = "AIN[ID]"
 
 //	I2C
 
-int enableI2Cdevice(int bus, unsigned char address, char *module);
-int disableI2Cdevice(int bus, unsigned char address);
+int enableI2Cdevice(int bus, unsigned char address, char *module);		// Enables I2C Device on bus number by address
+int disableI2Cdevice(int bus, unsigned char address);				// Disable I2C Device on bus number by address
 
 //	GPIO
 
-int enableGpio(int gpio);
-int disableGpio(int gpio);
+int enableGpio(int gpio);							// Enables GPIO enableGpio(getGpio(getIndexByStr("P9_12")));
+int disableGpio(int gpio);							// Disables GPIO
 
-int setGpioDirection(int gpio, int direction);	// 0 == IN && 1 == OUT
-int getGpioDirection(int gpio);
+int setGpioDirection(int gpio, int direction);					// 0 == IN && 1 == OUT
+int getGpioDirection(int gpio);							// 0 == IN && 1 == OUT
 
-int setGpioValue(int gpio, int value);		// 0 == LOW && 1 == HIGH
-int getGpioValue(int gpio);
+int setGpioValue(int gpio, int value);						// 0 == LOW && 1 == HIGH
+int getGpioValue(int gpio);							// 0 == LOW && 1 == HIGH
+
+//	PWM
+
+int enablePwm(int header, int pin);						// "P8_13" = 8, 13
+
+int setPwmPeriod(int header, int pin, uint64_t time);				// 20000000 = 0.02 seconds == 50Hz
+int setPwmDuty(int header, int pin, uint64_t time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
+int setPwmHz(int header, int pin, char *hz);					// 50Hz, 100kHz, 1MHz, 25 = 25Hz
+int setPwmPercent(int header, int pin, int duty);				// 0 - 100%
+
+uint64_t getPwmPeriod(int header, int pin);					// 20000000 
+uint64_t getPwmDuty(int header, int pin);					// 10000000
+char *getPwmHz(int header, int pin);						// 50Hz
+int getPwmPercent(int header, int pin);						// 50%
 
 //	Debug
 
-void showByIndex(int index);
-void showPin(char *str);
-void showAll();
-void showByType(bbb_pin_type type);
-void showByTypeOnly(bbb_pin_type type);
+void showByIndex(int index);							// Print values from pinout_table by index 
+void showPin(char *str);							// showByIndex(getIndexByStr("P8_13"));
+void showAll();									// Print table
+void showByType(bbb_pin_type type);						// showByType(str2pinType("pwm"));
+void showByTypeOnly(bbb_pin_type type);						// showByTypeOnly(str2pinType("pwm"));
 
 #endif
