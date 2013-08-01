@@ -129,8 +129,8 @@ static char *help =
 " sudo ./bbb --disable-gpio 60                                      \n"
 "                                                                   \n"
 " sudo ./bbb --enable-pwm P8_13                                     \n"
-" sudo ./bbb --pwm --set-period 50Hz --set-duty 50                  \n"
-" sudo ./bbb --pwm --get-period --get-duty                          \n"
+" sudo ./bbb --pwm P8_13 --set-period 50Hz --set-duty 50            \n"
+" sudo ./bbb --pwm P8_13 --get-period --get-duty                    \n"
 "\n";
 
 int main(int argc, char **argv) {
