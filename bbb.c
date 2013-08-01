@@ -1006,7 +1006,7 @@ int getPwmPolarity(int header, int pin) {
 			if (read(fd, ptr, sizeof(ptr)) <= 0) {
 				ret = -1;
 			} else {
-				ret = 0;
+				ret = atoi(ptr);
 			}
 
 			close(fd);
