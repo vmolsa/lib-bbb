@@ -1,4 +1,4 @@
-#"CapeMgr" for BeagleBone Black
+#"Capemgr" for BeagleBone Black
 
 C api for BeagleBone Black, functions for gpio, analog, pwm, i2c and bbb tool and more...
 
