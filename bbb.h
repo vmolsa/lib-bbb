@@ -228,7 +228,7 @@ int getGpioValue(int gpio);							// 0 == LOW && 1 == HIGH
 int enablePwm(int header, int pin);						// "P8_13" = 8, 13
 
 int setPwmPeriod(int header, int pin, int time);				// 20000000 = 0.02 seconds == 50Hz
-int setPwmDuty(int header, int pin, int time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
+int setPwmDuty(int header, int pin, int time);					// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
 int setPwmHz(int header, int pin, char *hz);					// 50Hz, 100kHz, 1MHz, 25 = 25Hz
 int setPwmPercent(int header, int pin, int duty);				// 0 - 100%
 int setPwmPolarity(int header, int pin, int polarity);				// 0 || 1

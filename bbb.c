@@ -894,8 +894,7 @@ int setPwmPolarity(int header, int pin, int polarity) {
 }
 
 int getPwmPeriod(int header, int pin) {
-	int time = 0;
-
+	int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -913,21 +912,20 @@ int getPwmPeriod(int header, int pin) {
 			memset(ptr, 0, sizeof(ptr));
 
 			if (read(fd, ptr, sizeof(ptr)) <= 0) {
-				close(fd);
-				return -1;
+				ret = -1;
+			} else {
+				ret = atoi(ptr);
 			}
 
-			time = strtoull(ptr, NULL, 10);
 			close(fd);
 		}
 	}
 
-	return time;
+	return ret;
 }
 
 int getPwmDuty(int header, int pin) {
-	int time = 0;
-
+	int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -945,16 +943,16 @@ int getPwmDuty(int header, int pin) {
 			memset(ptr, 0, sizeof(ptr));
 
 			if (read(fd, ptr, sizeof(ptr)) <= 0) {
-				close(fd);
-				return -1;
+				ret = -1;
+			} else {
+				ret = atoi(ptr);
 			}
 
-			time = strtoull(ptr, NULL, 10);
 			close(fd);
 		}
 	}
 
-	return time;
+	return ret;
 }
 
 char *getPwmHz(int header, int pin) {
