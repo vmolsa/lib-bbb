@@ -378,7 +378,7 @@ int main(int argc, char **argv) {
 
 	if (getpwmpolarity >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			LOG("%d%%\n", getPwmPolarity(pwm_header, pwm_pin));
+			LOG("%d\n", getPwmPolarity(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;
