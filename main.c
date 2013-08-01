@@ -59,12 +59,13 @@ static struct option long_options[] = {
 	{ "get-value",		no_argument, 0, 'V' },
 	{ "enable-pwm", 	required_argument, 0, '1' },
 	{ "pwm", 		required_argument, 0, '2' },
-	{ "set-period", 	required_argument, 0, '3' },
+	{ "set-period",		required_argument, 0, '9' },
+	{ "set-period-hz", 	required_argument, 0, '3' },
 	{ "set-duty", 		required_argument, 0, '4' },
 	{ "set-polarity", 	required_argument, 0, '7' },
 	{ "get-period", 	no_argument, 0, '5' },
 	{ "get-duty", 		no_argument, 0, '6' },
-	{ "get-polarity", 	no_argument, 0, '8' },	
+	{ "get-polarity", 	no_argument, 0, '8' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -105,7 +106,8 @@ static char *help =
 "                                                                   \n"
 "   --enable-pwm <P[HEADER]_[NUM]>                                  \n"
 "   --pwm <P[HEADER]_[NUM]>                                         \n"
-"      --set-period <x[Hz][kHz][MHz]>                               \n"
+"      --set-period <time>                                          \n"
+"      --set-period-hz <x[Hz][kHz][MHz]>                            \n"
 "      --set-duty <[0-100]>                                         \n"
 "      --set-polarity <0 | 1>                                       \n"
 "      --get-period                                                 \n"
@@ -133,7 +135,9 @@ static char *help =
 " sudo ./bbb --disable-gpio 60                                      \n"
 "                                                                   \n"
 " sudo ./bbb --enable-pwm P8_13                                     \n"
-" sudo ./bbb --pwm P8_13 --set-period 1Hz --set-duty 100            \n"
+" sudo ./bbb --pwm P8_13 --set-period 1000000000                    \n"
+" sudo ./bbb --pwm P8_13 --set-period-hz 50Hz                       \n"
+" sudo ./bbb --pwm P8_13 --set-duty 100                             \n"
 " sudo ./bbb --pwm P8_13 --get-period --get-duty                    \n"
 " sudo ./bbb --pwm P8_13 --set-polarity 0                           \n"
 "\n";
@@ -153,7 +157,8 @@ int main(int argc, char **argv) {
 	char *module = NULL;	
 	int pwm_header = -1;
 	int pwm_pin = -1;
-	char *setpwmperiod = NULL;
+	int setpwmperiod = -1;
+	char *setpwmperiodhz = NULL;
 	int setpwmduty = -1;
 	int getpwmperiod = -1;
 	int getpwmduty = -1;
@@ -244,7 +249,7 @@ int main(int argc, char **argv) {
 				pwm_pin = getPin(getIndexByStr(optarg));
 				break;
 			case '3':
-				setpwmperiod = optarg;
+				setpwmperiodhz = optarg;
 				break;
 			case '4':
 				setpwmduty = atoi(optarg);
@@ -260,6 +265,9 @@ int main(int argc, char **argv) {
 				break;
 			case '8':
 				getpwmpolarity = 1;
+				break;
+			case '9':
+				setpwmperiod = atoi(optarg);
 				break;
 			case 'h':
 			default:
@@ -331,9 +339,18 @@ int main(int argc, char **argv) {
 		}
 	}
 
-	if (setpwmperiod != NULL) {
+	if (setpwmperiod >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			setPwmHz(pwm_header, pwm_pin, setpwmperiod);
+			setPwmPeriod(pwm_header, pwm_pin, setpwmperiod);
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (setpwmperiodhz != NULL) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			setPwmHz(pwm_header, pwm_pin, setpwmperiodhz);
 		} else {
 			LOG("%s\n", help);
 			return -1;
