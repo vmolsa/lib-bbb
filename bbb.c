@@ -719,7 +719,7 @@ int setPwmPeriod(int header, int pin, uint64_t time) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -751,7 +751,7 @@ int setPwmDuty(int header, int pin, uint64_t time) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -873,7 +873,7 @@ uint64_t getPwmPeriod(int header, int pin) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -905,7 +905,7 @@ uint64_t getPwmDuty(int header, int pin) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+		if ((wpath = wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
