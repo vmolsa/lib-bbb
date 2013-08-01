@@ -72,11 +72,3 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c and bbb tool an
     git clone https://github.com/vmolsa/lib-bbb.git
     cd lib-bbb
     make
-
-### !!! Check paths from bbb.h !!!
-
-    #define BBB_SLOTS "/sys/devices/bone_capemgr.8/slots"
-    #define BBB_HELPER "/sys/devices/ocp.2/helper.14"
-    #define BBB_GPIOP "/sys/class/gpio"
-    #define BBB_I2CDEVICES "/sys/bus/i2c/devices"
-
