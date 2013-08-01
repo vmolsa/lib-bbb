@@ -233,11 +233,13 @@ int setPwmPeriod(int header, int pin, uint64_t time);				// 20000000 = 0.02 seco
 int setPwmDuty(int header, int pin, uint64_t time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
 int setPwmHz(int header, int pin, char *hz);					// 50Hz, 100kHz, 1MHz, 25 = 25Hz
 int setPwmPercent(int header, int pin, int duty);				// 0 - 100%
+int setPwmPolarity(int header, int pin, int polarity);				// 0 || 1
 
 uint64_t getPwmPeriod(int header, int pin);					// 20000000 
 uint64_t getPwmDuty(int header, int pin);					// 10000000
 char *getPwmHz(int header, int pin);						// 50Hz
 int getPwmPercent(int header, int pin);						// 50%
+int getPwmPolarity(int header, int pin);					// 0 || 1
 
 //	Debug
 

@@ -861,6 +861,38 @@ int setPwmPercent(int header, int pin, int duty) {
 	return -1;
 }
 
+int setPwmPolarity(int header, int pin, int polarity) {
+	int ret = -1;
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	char *wpath = NULL;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/polarity", BBB_OCP2, header, pin);
+
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_WRONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+			ret = snprintf(ptr, sizeof(ptr), "%d", polarity);
+
+			if (write(fd, ptr, ret) < 0) {
+				ret = -1;
+			} else {
+				ret = 0;
+			}
+
+			close(fd);
+		}
+	}
+
+	return ret;
+}
+
 uint64_t getPwmPeriod(int header, int pin) {
 	uint64_t time = 0;
 
@@ -948,6 +980,37 @@ int getPwmPercent(int header, int pin) {
 		uint64_t duty = getPwmDuty(header, pin);
 
 		ret = (int) ((duty / period) * 100);
+	}
+
+	return ret;
+}
+
+int getPwmPolarity(int header, int pin) {
+	int ret = -1;
+	int fd = -1;
+	char path[128];
+	char ptr[128];
+	char *wpath = NULL;
+
+	if (header > 0 && pin > 0) {
+		memset(path, 0, sizeof(path));
+		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/polarity", BBB_OCP2, header, pin);
+
+		if ((wpath = wildCardPath(path)) != NULL) {
+			if ((fd = open(wpath, O_RDONLY)) < 0) {
+				return -1;
+			}
+
+			memset(ptr, 0, sizeof(ptr));
+
+			if (read(fd, ptr, sizeof(ptr)) <= 0) {
+				ret = -1;
+			} else {
+				ret = 0;
+			}
+
+			close(fd);
+		}
 	}
 
 	return ret;

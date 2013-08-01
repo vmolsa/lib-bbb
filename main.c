@@ -61,8 +61,10 @@ static struct option long_options[] = {
 	{ "pwm", 		required_argument, 0, '2' },
 	{ "set-period", 	required_argument, 0, '3' },
 	{ "set-duty", 		required_argument, 0, '4' },
+	{ "set-polarity", 	required_argument, 0, '7' },
 	{ "get-period", 	no_argument, 0, '5' },
 	{ "get-duty", 		no_argument, 0, '6' },
+	{ "get-polarity", 	no_argument, 0, '8' },	
 	{ 0, 0, 0, 0 }
 };
 
@@ -105,8 +107,10 @@ static char *help =
 "   --pwm <P[HEADER]_[NUM]>                                         \n"
 "      --set-period <x[Hz][kHz][MHz]>                               \n"
 "      --set-duty <[0-100]>                                         \n"
+"      --set-polarity <0 | 1>                                       \n"
 "      --get-period                                                 \n"
 "      --get-duty                                                   \n"
+"      --get-polarity                                               \n"
 "                                                                   \n"
 " Examples:                                                         \n"
 "                                                                   \n"
@@ -129,8 +133,9 @@ static char *help =
 " sudo ./bbb --disable-gpio 60                                      \n"
 "                                                                   \n"
 " sudo ./bbb --enable-pwm P8_13                                     \n"
-" sudo ./bbb --pwm P8_13 --set-period 50Hz --set-duty 50            \n"
+" sudo ./bbb --pwm P8_13 --set-period 1Hz --set-duty 100            \n"
 " sudo ./bbb --pwm P8_13 --get-period --get-duty                    \n"
+" sudo ./bbb --pwm P8_13 --set-polarity 0                           \n"
 "\n";
 
 int main(int argc, char **argv) {
@@ -152,6 +157,8 @@ int main(int argc, char **argv) {
 	int setpwmduty = -1;
 	int getpwmperiod = -1;
 	int getpwmduty = -1;
+	int setpwmpolarity = -1;
+	int getpwmpolarity = -1;
 
 	int option_index = 0;
 
@@ -248,6 +255,12 @@ int main(int argc, char **argv) {
 			case '6':
 				getpwmduty = 1;
 				break;
+			case '7':
+				setpwmpolarity = atoi(optarg);
+				break;
+			case '8':
+				getpwmpolarity = 1;
+				break;
 			case 'h':
 			default:
 				LOG("%s\n", help);
@@ -336,6 +349,15 @@ int main(int argc, char **argv) {
 		}
 	}
 
+	if (setpwmpolarity >= 0) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			setPwmPolarity(pwm_header, pwm_pin, setpwmpolarity);
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
 	if (getpwmperiod >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
 			LOG("%s\n", getPwmHz(pwm_header, pwm_pin));
@@ -348,6 +370,15 @@ int main(int argc, char **argv) {
 	if (getpwmduty >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
 			LOG("%d%%\n", getPwmPercent(pwm_header, pwm_pin));
+		} else {
+			LOG("%s\n", help);
+			return -1;
+		}
+	}
+
+	if (getpwmpolarity >= 0) {
+		if (pwm_header > 0 && pwm_pin > 0) {
+			LOG("%d%%\n", getPwmPolarity(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;
