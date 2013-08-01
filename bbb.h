@@ -1,8 +1,6 @@
 #ifndef _BBB_H
 #define _BBB_H
 
-#include <inttypes.h>
-
 // 	BeagleBone Black Config
 
 #define BBB_SLOTS "/sys/devices/bone_capemgr.*/slots"
@@ -229,14 +227,14 @@ int getGpioValue(int gpio);							// 0 == LOW && 1 == HIGH
 
 int enablePwm(int header, int pin);						// "P8_13" = 8, 13
 
-int setPwmPeriod(int header, int pin, uint64_t time);				// 20000000 = 0.02 seconds == 50Hz
-int setPwmDuty(int header, int pin, uint64_t time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
+int setPwmPeriod(int header, int pin, int time);				// 20000000 = 0.02 seconds == 50Hz
+int setPwmDuty(int header, int pin, int time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
 int setPwmHz(int header, int pin, char *hz);					// 50Hz, 100kHz, 1MHz, 25 = 25Hz
 int setPwmPercent(int header, int pin, int duty);				// 0 - 100%
 int setPwmPolarity(int header, int pin, int polarity);				// 0 || 1
 
-uint64_t getPwmPeriod(int header, int pin);					// 20000000 
-uint64_t getPwmDuty(int header, int pin);					// 10000000
+int getPwmPeriod(int header, int pin);						// 20000000 
+int getPwmDuty(int header, int pin);						// 10000000
 char *getPwmHz(int header, int pin);						// 50Hz
 int getPwmPercent(int header, int pin);						// 50%
 int getPwmPolarity(int header, int pin);					// 0 || 1

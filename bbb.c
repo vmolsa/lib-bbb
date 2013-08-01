@@ -708,7 +708,7 @@ int enablePwm(int header, int pin) {
 	return -1;
 }
 
-int setPwmPeriod(int header, int pin, uint64_t time) {
+int setPwmPeriod(int header, int pin, int time) {
 	int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -725,7 +725,7 @@ int setPwmPeriod(int header, int pin, uint64_t time) {
 			}
 
 			memset(ptr, 0, sizeof(ptr));
-			ret = snprintf(ptr, sizeof(ptr), "%" PRIu64, time);
+			ret = snprintf(ptr, sizeof(ptr), "%d", time);
 
 			if (write(fd, ptr, ret) < 0) {
 				ret = -1;
@@ -740,7 +740,7 @@ int setPwmPeriod(int header, int pin, uint64_t time) {
 	return ret;
 }
 
-int setPwmDuty(int header, int pin, uint64_t time) {
+int setPwmDuty(int header, int pin, int time) {
 	int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -757,7 +757,7 @@ int setPwmDuty(int header, int pin, uint64_t time) {
 			}
 
 			memset(ptr, 0, sizeof(ptr));
-			ret = snprintf(ptr, sizeof(ptr), "%" PRIu64, time);
+			ret = snprintf(ptr, sizeof(ptr), "%d", time);
 
 			if (write(fd, ptr, ret) < 0) {
 				ret = -1;
@@ -765,7 +765,7 @@ int setPwmDuty(int header, int pin, uint64_t time) {
 				ret = 0;
 			}
 
-			close(fd);	
+			close(fd);
 		}
 	}
 
@@ -773,7 +773,7 @@ int setPwmDuty(int header, int pin, uint64_t time) {
 }
 
 int setPwmHz(int header, int pin, char *hz) {
-	uint64_t time = 0;
+	int time = 0;
 	int i, size = 0;
 	char ptr[128];
 	char c;
@@ -816,7 +816,7 @@ int setPwmHz(int header, int pin, char *hz) {
 		}
 
 		if (z < 0 && h < 0 && k < 0 && m < 0) {
-			return setPwmPeriod(header, pin, (uint64_t) (Hz / atoi(hz)));
+			return setPwmPeriod(header, pin, (int) (Hz / atoi(hz)));
 		}
 
 		if (size >= 2 && h >= 0 && z >= 1) {
@@ -838,9 +838,9 @@ int setPwmHz(int header, int pin, char *hz) {
 				memcpy(ptr, hz, size);
 
 				if (fl > 0) {
-					time = (uint64_t) time / atof(ptr);
+					time = (int) time / atof(ptr);
 				} else {
-					time = (uint64_t) time / atoi(ptr);
+					time = (int) time / atoi(ptr);
 				}
 			}
 
@@ -852,7 +852,7 @@ int setPwmHz(int header, int pin, char *hz) {
 }
 
 int setPwmPercent(int header, int pin, int duty) {
-	uint64_t time = getPwmPeriod(header, pin);
+	int time = getPwmPeriod(header, pin);
 
 	if (header > 0 && pin > 0 && duty >= 0 && duty <= 100) {
 		return setPwmDuty(header, pin, ((time / 100) * duty));
@@ -893,8 +893,8 @@ int setPwmPolarity(int header, int pin, int polarity) {
 	return ret;
 }
 
-uint64_t getPwmPeriod(int header, int pin) {
-	uint64_t time = 0;
+int getPwmPeriod(int header, int pin) {
+	int time = 0;
 
 	int fd = -1;
 	char path[128];
@@ -925,8 +925,8 @@ uint64_t getPwmPeriod(int header, int pin) {
 	return time;
 }
 
-uint64_t getPwmDuty(int header, int pin) {
-	uint64_t time = 0;
+int getPwmDuty(int header, int pin) {
+	int time = 0;
 
 	int fd = -1;
 	char path[128];
@@ -961,7 +961,7 @@ char *getPwmHz(int header, int pin) {
 	static char ptr[128];
 
 	if (header > 0 && pin > 0) {
-		uint64_t time = getPwmPeriod(header, pin);
+		int time = getPwmPeriod(header, pin);
 	
 		memset(ptr, 0, sizeof(ptr));
 		snprintf(ptr, sizeof(ptr), "%.3fHz", (double) (Hz / time));
@@ -976,8 +976,8 @@ int getPwmPercent(int header, int pin) {
 	int ret = -1;
 
 	if (header > 0 && pin > 0) {	
-		uint64_t period = getPwmPeriod(header, pin);
-		uint64_t duty = getPwmDuty(header, pin);
+		int period = getPwmPeriod(header, pin);
+		int duty = getPwmDuty(header, pin);
 
 		ret = (int) ((duty / period) * 100);
 	}
