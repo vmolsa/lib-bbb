@@ -1,5 +1,5 @@
 all:
-	gcc -c bbb.c	
+	gcc -fPIC -c bbb.c	
 	gcc -o bbb main.c bbb.o
 
 	ar -rc lib-bbb.a bbb.o

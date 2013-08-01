@@ -8,6 +8,7 @@
 int i2c_bus_detect(char *index) {
 	pid_t pid;
 	int status;
+	int pipefd[2] = { -1, -1 };
 	char *envp[] = { NULL };
 	char *argv[] = { "i2cdetect", "-y", "-r", index, NULL };
 
@@ -15,7 +16,7 @@ int i2c_bus_detect(char *index) {
 		case -1:
 			return -1;
 		case 0:
-			status = execve(argv[0], argv, envp);
+			status = execvp(argv[0], argv);
 			exit(status);
 		default:
 			if (waitpid(pid, &status, 0) < 0) {
@@ -152,7 +153,6 @@ int main(int argc, char **argv) {
 				break;
 			case 'S':
 				return i2c_bus_detect(optarg);
-				break;
 			case 't':
 				for (i = 0; i < bbb_pin_type_str_size; i++) {
 					LOG("   %s\n", bbb_pin_type_str[i]);
