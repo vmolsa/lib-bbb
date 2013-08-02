@@ -1,12 +1,12 @@
 /* Copyright (c) 2013, ville mölsä
  * All rights reserved.
- * 
+ *
  * Redistribution and use in source and binary forms, with or without modification,
  * are permitted provided that the following conditions are met:
- * 
+ *
  *   Redistributions of source code must retain the above copyright notice, this
  *   list of conditions and the following disclaimer.
- * 
+ *
  *   Redistributions in binary form must reproduce the above copyright notice, this
  *   list of conditions and the following disclaimer in the documentation and/or
  *   other materials provided with the distribution.
@@ -66,9 +66,9 @@ char *wildCardPath(char *path) {
 
 int getIndexByStr(char *str) {
 	int size = strlen(str);
-	int header = 0; 
+	int header = 0;
 	int pin = 0;
-	
+
 	if (str[0] == 'P' && size >= 4) {
 		if (str[1] == '8') {
 			header = 8;
@@ -146,7 +146,7 @@ int getHeader(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].header;
 	}
-	
+
 	return -1;
 }
 
@@ -154,7 +154,7 @@ int getPin(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].pin;
 	}
-	
+
 	return -1;
 }
 
@@ -162,7 +162,7 @@ int getGpio(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].gpio;
 	}
-	
+
 	return 0;
 }
 
@@ -170,7 +170,7 @@ bbb_pin_type getType1(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].type1;
 	}
-	
+
 	return 0;
 }
 
@@ -178,7 +178,7 @@ bbb_pin_type getType2(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].type2;
 	}
-	
+
 	return 0;
 }
 
@@ -186,7 +186,7 @@ bbb_pin_type getType3(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
 		return pinout_table[index].type3;
 	}
-	
+
 	return 0;
 }
 
@@ -213,7 +213,7 @@ char *getPinStrByIndex(int index) {
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(pinstr, 0, sizeof(pinstr));
-		snprintf(pinstr, sizeof(pinstr), "P%d_%d", pinout_table[index].header, pinout_table[index].pin); 
+		snprintf(pinstr, sizeof(pinstr), "P%d_%d", pinout_table[index].header, pinout_table[index].pin);
 
 		return pinstr;
 	}
@@ -226,7 +226,7 @@ char *getGpioStrByIndex(int index) {
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(gpiostr, 0, sizeof(gpiostr));
-		snprintf(gpiostr, sizeof(gpiostr), "%d", pinout_table[index].gpio); 
+		snprintf(gpiostr, sizeof(gpiostr), "%d", pinout_table[index].gpio);
 
 		return gpiostr;
 	}
@@ -239,7 +239,7 @@ char *getTypeStrByIndex(int index) {
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(typestr, 0, sizeof(typestr));
-		snprintf(typestr, sizeof(typestr), "%s %s %s", pinType2str(pinout_table[index].type1), pinType2str(pinout_table[index].type2), pinType2str(pinout_table[index].type3)); 
+		snprintf(typestr, sizeof(typestr), "%s %s %s", pinType2str(pinout_table[index].type1), pinType2str(pinout_table[index].type2), pinType2str(pinout_table[index].type3));
 
 		return typestr;
 	}
@@ -339,7 +339,7 @@ int getADC(int id) {
 		}
 
 		memset(buffer, 0, sizeof(buffer));
-		
+
 		if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
 			return -1;
 		}
@@ -442,7 +442,7 @@ int enableGpio(int gpio) {
 	char path[128];
 	char ptr[128];
 	char *wpath = NULL;
-	
+
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d", BBB_GPIOP, gpio);
@@ -490,7 +490,7 @@ int disableGpio(int gpio) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "%s/unexport", BBB_GPIOP);
 
-			if ((wpath = wildCardPath(path)) != NULL) {	
+			if ((wpath = wildCardPath(path)) != NULL) {
 				if ((fd = open(wpath, O_WRONLY)) < 0) {
 					return -1;
 				}
@@ -507,7 +507,7 @@ int disableGpio(int gpio) {
 				}
 
 				close(fd);
-			}			
+			}
 		}
 	}
 
@@ -520,7 +520,7 @@ int setGpioDirection(int gpio, int direction) {
 	char path[128];
 	char *ptr = "IN";
 	char *wpath = NULL;
-	
+
 	if (gpio > 0) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/direction", BBB_GPIOP, gpio);
@@ -533,7 +533,7 @@ int setGpioDirection(int gpio, int direction) {
 			if (direction > 0) {
 				ret = 3;
 				ptr = "out";
-			} else {	
+			} else {
 				ret = 2;
 				ptr = "in";
 			}
@@ -544,7 +544,7 @@ int setGpioDirection(int gpio, int direction) {
 				ret = 0;
 			}
 
-			close(fd);	
+			close(fd);
 		}
 	}
 
@@ -575,7 +575,7 @@ int getGpioDirection(int gpio) {
 			}
 
 			if (ret >= 2 && strncmp(ptr, "in", 2) == 0) {
-				ret = 0;				
+				ret = 0;
 			} else {
 				if (ret >= 3 && strncmp(ptr, "out", 3) == 0) {
 					ret = 1;
@@ -584,7 +584,7 @@ int getGpioDirection(int gpio) {
 				}
 			}
 
-			close(fd);	
+			close(fd);
 		}
 	}
 
@@ -614,9 +614,9 @@ int setGpioValue(int gpio, int value) {
 				ret = -1;
 			} else {
 				ret = 0;
-			}			
+			}
 
-			close(fd);	
+			close(fd);
 		}
 	}
 
@@ -646,7 +646,7 @@ int getGpioValue(int gpio) {
 				return -1;
 			}
 
-			ret = atoi(ptr);		
+			ret = atoi(ptr);
 
 			close(fd);
 		}
@@ -667,7 +667,7 @@ int enablePwm(int header, int pin) {
 	int size = strlen(pwm);
 	char *wpath = NULL;
 
-	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {	
+	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
 		if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
 			return -1;
 		}
@@ -733,7 +733,7 @@ int setPwmPeriod(int header, int pin, int time) {
 				ret = 0;
 			}
 
-			close(fd);	
+			close(fd);
 		}
 	}
 
@@ -822,7 +822,7 @@ int setPwmHz(int header, int pin, char *hz) {
 		if (size >= 2 && h >= 0 && z >= 1) {
 			time = Hz;
 			size -= 2;
-			
+
 			if (k >= 0) {
 				time = kHz;
 				size--;
@@ -960,9 +960,9 @@ char *getPwmHz(int header, int pin) {
 
 	if (header > 0 && pin > 0) {
 		int time = getPwmPeriod(header, pin);
-	
+
 		memset(ptr, 0, sizeof(ptr));
-		snprintf(ptr, sizeof(ptr), "%.3fHz", (double) (Hz / time));
+		snprintf(ptr, sizeof(ptr), "%dHz", (int) (Hz / time));
 
 		return ptr;
 	}
@@ -973,7 +973,7 @@ char *getPwmHz(int header, int pin) {
 int getPwmPercent(int header, int pin) {
 	int ret = -1;
 
-	if (header > 0 && pin > 0) {	
+	if (header > 0 && pin > 0) {
 		int period = getPwmPeriod(header, pin);
 		int duty = getPwmDuty(header, pin);
 
@@ -1028,7 +1028,7 @@ void showAll() {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		showByIndex(i);	
+		showByIndex(i);
 	}
 }
 
