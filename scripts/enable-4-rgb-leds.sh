@@ -31,3 +31,16 @@ $SUDO bbb --enable-gpio-pin $GPLR4 --gpio-pin $GPLR4 --set-direction 1 --set-val
 $SUDO bbb --enable-gpio-pin $GPLG4 --gpio-pin $GPLG4 --set-direction 1 --set-value 1 # LED 4 GREEN
 $SUDO bbb --enable-gpio-pin $GPLB4 --gpio-pin $GPLB4 --set-direction 1 --set-value 1 # LED 4 BLUE
 
+$SUDO bbb --gpio-pin $GPLR1 --get-value # LED 1 RED
+$SUDO bbb --gpio-pin $GPLG1 --get-value # LED 1 GREEN
+$SUDO bbb --gpio-pin $GPLB1 --get-value # LED 1 BLUE
+$SUDO bbb --gpio-pin $GPLR2 --get-value # LED 2 RED
+$SUDO bbb --gpio-pin $GPLG2 --get-value # LED 2 GREEN
+$SUDO bbb --gpio-pin $GPLB2 --get-value # LED 2 BLUE
+$SUDO bbb --gpio-pin $GPLR3 --get-value # LED 3 RED
+$SUDO bbb --gpio-pin $GPLG3 --get-value # LED 3 GREEN
+$SUDO bbb --gpio-pin $GPLB3 --get-value # LED 3 BLUE
+$SUDO bbb --gpio-pin $GPLR4 --get-value # LED 4 RED
+$SUDO bbb --gpio-pin $GPLG4 --get-value # LED 4 GREEN
+$SUDO bbb --gpio-pin $GPLB4 --get-value # LED 4 BLUE
+
