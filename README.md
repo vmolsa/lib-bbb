@@ -45,27 +45,27 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c and bbb tool an
                                                                       
     Examples:                                                         
                                                                       
-    sudo ./bbb --enable-adc                                           
-    sudo ./bbb --get-adc 2                                            
+    sudo bbb --enable-adc                                           
+    sudo bbb --get-adc 2                                            
                                                                       
-    sudo ./bbb --enable-i2c-device 1 --address 0x53 --module adxl34x  
-    sudo ./bbb --i2c-scan 1                                           
-    sudo ./bbb --disable-i2c-device 1 --address 0x53                  
+    sudo bbb --enable-i2c-device 1 --address 0x53 --module adxl34x  
+    sudo bbb --i2c-scan 1                                           
+    sudo bbb --disable-i2c-device 1 --address 0x53                  
                                                                       
-         ./bbb --show-all                                             
-         ./bbb --show-pin P8_13                                       
-         ./bbb --show-by-type-only pwm                                
+         bbb --show-all                                             
+         bbb --show-pin P8_13                                       
+         bbb --show-by-type-only pwm                                
                                                                       
-    sudo ./bbb --enable-gpio 60                                       
-    sudo ./bbb --gpio 60 --set-direction 1                            
-    sudo ./bbb --gpio 60 --get-direction                              
-    sudo ./bbb --gpio 60 --set-value 1                                
-    sudo ./bbb --gpio 60 --get-value                                  
-    sudo ./bbb --disable-gpio 60                                      
+    sudo bbb --enable-gpio 60                                       
+    sudo bbb --gpio 60 --set-direction 1                            
+    sudo bbb --gpio 60 --get-direction                              
+    sudo bbb --gpio 60 --set-value 1                                
+    sudo bbb --gpio 60 --get-value                                  
+    sudo bbb --disable-gpio 60                                      
                                                                       
-    sudo ./bbb --enable-pwm P8_13                                     
-    sudo ./bbb --pwm --set-period 50Hz --set-duty 50                  
-    sudo ./bbb --pwm --get-period --get-duty
+    sudo bbb --enable-pwm P8_13                                     
+    sudo bbb --pwm --set-period 50Hz --set-duty 50                  
+    sudo bbb --pwm --get-period --get-duty
 
 ### Build:
     
