@@ -1,5 +1,7 @@
 #!/bin/sh
 
+SUDO=sudo
+
 GPLR1="P8_27"
 GPLG1="P8_28"
 GPLB1="P8_29"
