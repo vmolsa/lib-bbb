@@ -293,7 +293,7 @@ bbb_pin_type str2pinType(char *str) {
 
 int enableADC() {
 	int fd = -1;
-	int ret = -1;
+	static int ret = -1;
 	char buffer[1024];
 	char path[128];
 	char *ptr = "cape-bone-iio";
@@ -325,7 +325,7 @@ int enableADC() {
 
 int getADC(int id) {
 	int fd = -1;
-	int ret = -1;
+	static int ret = -1;
 	char buffer[128];
 	char path[128];
 	char *wpath = NULL;
@@ -354,7 +354,7 @@ int getADC(int id) {
 
 int enableI2Cdevice(int bus, unsigned char address, char *module) {
 	int fd = -1;
-	int ret = -1;
+	static int ret = -1;
 	char path[128];
 	char ptr[128];
 	char *wpath = NULL;
@@ -397,7 +397,7 @@ int enableI2Cdevice(int bus, unsigned char address, char *module) {
 
 int disableI2Cdevice(int bus, unsigned char address) {
 	int fd = -1;
-	int ret = -1;
+	static int ret = -1;
 	char path[128];
 	char ptr[128];
 	char *wpath = NULL;
@@ -437,7 +437,7 @@ int disableI2Cdevice(int bus, unsigned char address) {
 //	GPIO
 
 int enableGpio(int gpio) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -476,7 +476,7 @@ int enableGpio(int gpio) {
 }
 
 int disableGpio(int gpio) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -515,7 +515,7 @@ int disableGpio(int gpio) {
 }
 
 int setGpioDirection(int gpio, int direction) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char *ptr = "IN";
@@ -552,7 +552,7 @@ int setGpioDirection(int gpio, int direction) {
 }
 
 int getGpioDirection(int gpio) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -592,7 +592,7 @@ int getGpioDirection(int gpio) {
 }
 
 int setGpioValue(int gpio, int value) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -624,7 +624,7 @@ int setGpioValue(int gpio, int value) {
 }
 
 int getGpioValue(int gpio) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -709,7 +709,7 @@ int enablePwm(int header, int pin) {
 }
 
 int setPwmPeriod(int header, int pin, int time) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -720,7 +720,12 @@ int setPwmPeriod(int header, int pin, int time) {
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
 		if ((wpath = wildCardPath(path)) != NULL) {
-			if ((fd = open(wpath, O_WRONLY)) < 0) {
+                        if ((fd = open(wpath, O_WRONLY)) < 0) {
+                                return -1;
+                        }
+
+			if (setPwmDuty(header, pin, 0) < 0) {
+				close(fd);
 				return -1;
 			}
 
@@ -741,7 +746,7 @@ int setPwmPeriod(int header, int pin, int time) {
 }
 
 int setPwmDuty(int header, int pin, int time) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -786,7 +791,7 @@ int setPwmHz(int header, int pin, char *hz) {
 			return -1;
 		}
 
-		for (i = size, f = -1, c = hz[i]; i >= 0; i--, c = hz[i], f = -1) {
+		for (i = (size - 1), f = -1, c = hz[i]; i >= 0; i--, c = hz[i], f = -1) {
 			switch (c) {
 				case 'z':
 				case 'Z':
@@ -815,37 +820,38 @@ int setPwmHz(int header, int pin, char *hz) {
 			}
 		}
 
-		if (z < 0 && h < 0 && k < 0 && m < 0) {
-			return setPwmPeriod(header, pin, (int) (Hz / atoi(hz)));
+		time = Hz;
+
+		if (z >= 0) {
+			size--;
 		}
 
-		if (size >= 2 && h >= 0 && z >= 1) {
-			time = Hz;
-			size -= 2;
-
-			if (k >= 0) {
-				time = kHz;
-				size--;
-			}
-
-			if (m >= 0) {
-				time = MHz;
-				size--;
-			}
-
-			if (size > 0) {
-				memset(ptr, 0, sizeof(ptr));
-				memcpy(ptr, hz, size);
-
-				if (fl > 0) {
-					time = (int) time / atof(ptr);
-				} else {
-					time = (int) time / atoi(ptr);
-				}
-			}
-
-			return setPwmPeriod(header, pin, time);
+		if (h >= 0) {
+			size--;
 		}
+
+		if (k >= 0) {
+			time = kHz;
+			size--;
+		}
+
+		if (m >= 0) {
+			time = MHz;
+			size--;
+		}
+
+		if (size > 0) {
+			memset(ptr, 0, sizeof(ptr));
+			memcpy(ptr, hz, size);
+
+			if (fl > 0) {
+				time = (int) time / atof(ptr);
+			} else {
+				time = (int) time / atoi(ptr);
+			}
+		}
+
+		return setPwmPeriod(header, pin, time);
 	}
 
 	return -1;
@@ -862,7 +868,7 @@ int setPwmPercent(int header, int pin, int duty) {
 }
 
 int setPwmPolarity(int header, int pin, int polarity) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -894,7 +900,7 @@ int setPwmPolarity(int header, int pin, int polarity) {
 }
 
 int getPwmPeriod(int header, int pin) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -925,7 +931,7 @@ int getPwmPeriod(int header, int pin) {
 }
 
 int getPwmDuty(int header, int pin) {
-	int ret = -1;
+	static int ret = -1;
 	int fd = -1;
 	char path[128];
 	char ptr[128];
@@ -971,13 +977,13 @@ char *getPwmHz(int header, int pin) {
 }
 
 int getPwmPercent(int header, int pin) {
-	int ret = -1;
+	static int ret = -1;
 
 	if (header > 0 && pin > 0) {
 		int period = getPwmPeriod(header, pin);
 		int duty = getPwmDuty(header, pin);
 
-		ret = (int) ((duty / period) * 100);
+		ret = ((duty * 100) / period);
 	}
 
 	return ret;

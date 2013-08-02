@@ -154,7 +154,7 @@ int main(int argc, char **argv) {
 	int setgpiovalue = -1;
 	int getgpiovalue = -1;
 	unsigned char address = 0;
-	char *module = NULL;	
+	char *module = NULL;
 	int pwm_header = -1;
 	int pwm_pin = -1;
 	int setpwmperiod = -1;
@@ -332,7 +332,7 @@ int main(int argc, char **argv) {
 
 	if (getgpiovalue >= 0) {
 		if (gpio > 0) {
-			LOG("%d\n", getGpioValue(gpio)); 
+			LOG("%d\n", getGpioValue(gpio));
 		} else {
 			LOG("%s\n", help);
 			return -1;
