@@ -3,7 +3,7 @@ all:
 	gcc -o bbb main.c bbb.o
 
 	ar -rc lib-bbb.a bbb.o
-	gcc -shared -Wl -o lib-bbb.so bbb.o
+	gcc -shared -o lib-bbb.so bbb.o
 
 install:
 	install -m 0755 ./bbb /usr/local/bin/
