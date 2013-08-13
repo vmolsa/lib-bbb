@@ -239,6 +239,10 @@ char *bbb_getPwmHz(int header, int pin);					// 50Hz
 int bbb_getPwmPercent(int header, int pin);					// 50%
 int bbb_getPwmPolarity(int header, int pin);					// 0 || 1
 
+//	Serial
+
+int bbb_enableSerial(int index);
+
 //	Debug
 
 void bbb_showByIndex(int index);						// Print values from pinout_table by index 
