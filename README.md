@@ -79,7 +79,7 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c, serial and bbb
 
 ### Build:
     
-    git clone https://github.com/vmolsa/lib-bbb.git
+    git clone https://github.com/vmolsa/lib-bbb
     cd lib-bbb
     make
     sudo make install
