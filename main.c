@@ -178,22 +178,22 @@ int main(int argc, char **argv) {
 	while ((c = getopt_long (argc, argv, "", long_options, &option_index)) != -1) {
 		switch (c) {
 			case 'a':
-				showAll();
+				bbb_showAll();
 				break;
 			case 'A':
 				enableadc = 1;
 				break;
 			case 'U':
-				LOG("%d\n", getADC(atoi(optarg)));
+				LOG("%d\n", bbb_getADC(atoi(optarg)));
 				break;
 			case 'p':
-				showPin(optarg);
+				bbb_showPin(optarg);
 				break;
 			case 'b':
-				showByType(str2pinType(optarg));
+				bbb_showByType(bbb_str2pinType(optarg));
 				break;
 			case 'o':
-				showByTypeOnly(str2pinType(optarg));
+				bbb_showByTypeOnly(bbb_str2pinType(optarg));
 				break;
 			case 'S':
 				return i2c_bus_detect(optarg);
@@ -215,22 +215,22 @@ int main(int argc, char **argv) {
 				module = optarg;
 				break;
 			case 'g':
-				enableGpio(atoi(optarg));
+				bbb_enableGpio(atoi(optarg));
 				break;
 			case 'G':
-				enableGpio(getGpio(getIndexByStr(optarg)));
+				bbb_enableGpio(bbb_getGpio(bbb_getIndexByStr(optarg)));
 				break;
 			case 'j':
-				disableGpio(atoi(optarg));
+				bbb_disableGpio(atoi(optarg));
 				break;
 			case 'J':
-				disableGpio(getGpio(getIndexByStr(optarg)));
+				bbb_disableGpio(bbb_getGpio(bbb_getIndexByStr(optarg)));
 				break;
 			case 'q':
 				gpio = atoi(optarg);
 				break;
 			case 'Q':
-				gpio = getGpio(getIndexByStr(optarg));
+				gpio = bbb_getGpio(bbb_getIndexByStr(optarg));
 				break;
 			case 'c':
 				direction = atoi(optarg);
@@ -245,11 +245,11 @@ int main(int argc, char **argv) {
 				getgpiovalue = 1;
 				break;
 			case '1':
-				enablePwm(getHeader(getIndexByStr(optarg)), getPin(getIndexByStr(optarg)));
+				bbb_enablePwm(bbb_getHeader(bbb_getIndexByStr(optarg)), bbb_getPin(bbb_getIndexByStr(optarg)));
 				break;
 			case '2':
-				pwm_header = getHeader(getIndexByStr(optarg));
-				pwm_pin = getPin(getIndexByStr(optarg));
+				pwm_header = bbb_getHeader(bbb_getIndexByStr(optarg));
+				pwm_pin = bbb_getPin(bbb_getIndexByStr(optarg));
 				break;
 			case '3':
 				setpwmperiodhz = optarg;
@@ -273,7 +273,7 @@ int main(int argc, char **argv) {
 				setpwmperiod = atoi(optarg);
 				break;
 			case 'K':
-				enableSerial(atoi(optarg));
+				bbb_enableSerial(atoi(optarg));
 				break;
 			case 'h':
 			default:
@@ -284,7 +284,7 @@ int main(int argc, char **argv) {
 
 	if (enablei2c >= 0) {
 		if (address > 0 && module != NULL) {
-			enableI2Cdevice(enablei2c, address, module);
+			bbb_enableI2Cdevice(enablei2c, address, module);
 		}
 
 		else {
@@ -296,7 +296,7 @@ int main(int argc, char **argv) {
 
 	if (disablei2c >= 0) {
 		if (address > 0) {
-			disableI2Cdevice(disablei2c, address);
+			bbb_disableI2Cdevice(disablei2c, address);
 		}
 
 		else {
@@ -306,12 +306,12 @@ int main(int argc, char **argv) {
 	}
 
 	if (enableadc >= 0) {
-		enableADC();
+		bbb_enableADC();
 	}
 
 	if (direction >= 0) {
 		if (gpio > 0) {
-			setGpioDirection(gpio, direction);
+			bbb_setGpioDirection(gpio, direction);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -320,7 +320,7 @@ int main(int argc, char **argv) {
 
 	if (getdirection >= 0) {
 		if (gpio > 0) {
-			LOG("%d\n", getGpioDirection(gpio));
+			LOG("%d\n", bbb_getGpioDirection(gpio));
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -329,7 +329,7 @@ int main(int argc, char **argv) {
 
 	if (setgpiovalue >= 0) {
 		if (gpio > 0) {
-			setGpioValue(gpio, setgpiovalue);
+			bbb_setGpioValue(gpio, setgpiovalue);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -338,7 +338,7 @@ int main(int argc, char **argv) {
 
 	if (getgpiovalue >= 0) {
 		if (gpio > 0) {
-			LOG("%d\n", getGpioValue(gpio));
+			LOG("%d\n", bbb_getGpioValue(gpio));
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -347,7 +347,7 @@ int main(int argc, char **argv) {
 
 	if (setpwmperiod >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			setPwmPeriod(pwm_header, pwm_pin, setpwmperiod);
+			bbb_setPwmPeriod(pwm_header, pwm_pin, setpwmperiod);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -356,7 +356,7 @@ int main(int argc, char **argv) {
 
 	if (setpwmperiodhz != NULL) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			setPwmHz(pwm_header, pwm_pin, setpwmperiodhz);
+			bbb_setPwmHz(pwm_header, pwm_pin, setpwmperiodhz);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -365,7 +365,7 @@ int main(int argc, char **argv) {
 
 	if (setpwmduty >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			setPwmPercent(pwm_header, pwm_pin, setpwmduty);
+			bbb_setPwmPercent(pwm_header, pwm_pin, setpwmduty);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -374,7 +374,7 @@ int main(int argc, char **argv) {
 
 	if (setpwmpolarity >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			setPwmPolarity(pwm_header, pwm_pin, setpwmpolarity);
+			bbb_setPwmPolarity(pwm_header, pwm_pin, setpwmpolarity);
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -383,7 +383,7 @@ int main(int argc, char **argv) {
 
 	if (getpwmperiod >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			LOG("%s\n", getPwmHz(pwm_header, pwm_pin));
+			LOG("%s\n", bbb_getPwmHz(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -392,7 +392,7 @@ int main(int argc, char **argv) {
 
 	if (getpwmduty >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			LOG("%d%%\n", getPwmPercent(pwm_header, pwm_pin));
+			LOG("%d%%\n", bbb_getPwmPercent(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;
@@ -401,7 +401,7 @@ int main(int argc, char **argv) {
 
 	if (getpwmpolarity >= 0) {
 		if (pwm_header > 0 && pwm_pin > 0) {
-			LOG("%d\n", getPwmPolarity(pwm_header, pwm_pin));
+			LOG("%d\n", bbb_getPwmPolarity(pwm_header, pwm_pin));
 		} else {
 			LOG("%s\n", help);
 			return -1;

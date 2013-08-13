@@ -40,7 +40,7 @@
 
 //	Utils
 
-char *wildCardPath(char *path) {
+char *bbb_wildCardPath(char *path) {
 	size_t size = 0;
 	char *ptr = NULL;
 	static char ret[1024];
@@ -65,7 +65,7 @@ char *wildCardPath(char *path) {
 
 //	Get Index
 
-int getIndexByStr(char *str) {
+int bbb_getIndexByStr(char *str) {
 	int size = strlen(str);
 	int header = 0;
 	int pin = 0;
@@ -90,14 +90,14 @@ int getIndexByStr(char *str) {
 		return -1;
 	}
 
-	return getIndexByPin(header, pin);
+	return bbb_getIndexByPin(header, pin);
 }
 
-int getIndexByPin(int header, int pin) {
+int bbb_getIndexByPin(int header, int pin) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		if (pinout_table[i].header == header && pinout_table[i].pin == pin) {
+		if (bbb_pinout_table[i].header == header && bbb_pinout_table[i].pin == pin) {
 			return i;
 		}
 	}
@@ -105,11 +105,11 @@ int getIndexByPin(int header, int pin) {
 	return -1;
 }
 
-int getIndexByGpio(int gpio) {
+int bbb_getIndexByGpio(int gpio) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		if (pinout_table[i].gpio == gpio) {
+		if (bbb_pinout_table[i].gpio == gpio) {
 			return i;
 		}
 	}
@@ -117,11 +117,11 @@ int getIndexByGpio(int gpio) {
 	return -1;
 }
 
-int getIndexBySignalName(char *signalname) {
+int bbb_getIndexBySignalName(char *signalname) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		if (strcmp(pinout_table[i].sig, signalname) == 0) {
+		if (strcmp(bbb_pinout_table[i].sig, signalname) == 0) {
 			return i;
 		}
 	}
@@ -129,11 +129,11 @@ int getIndexBySignalName(char *signalname) {
 	return -1;
 }
 
-int getIndexByName(char *name) {
+int bbb_getIndexByName(char *name) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		if (strcmp(pinout_table[i].name, name) == 0) {
+		if (strcmp(bbb_pinout_table[i].name, name) == 0) {
 			return i;
 		}
 	}
@@ -143,65 +143,65 @@ int getIndexByName(char *name) {
 
 //	Index to values
 
-int getHeader(int index) {
+int bbb_getHeader(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].header;
+		return bbb_pinout_table[index].header;
 	}
 
 	return -1;
 }
 
-int getPin(int index) {
+int bbb_getPin(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].pin;
+		return bbb_pinout_table[index].pin;
 	}
 
 	return -1;
 }
 
-int getGpio(int index) {
+int bbb_getGpio(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].gpio;
+		return bbb_pinout_table[index].gpio;
 	}
 
 	return 0;
 }
 
-bbb_pin_type getType1(int index) {
+bbb_pin_type bbb_getType1(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].type1;
+		return bbb_pinout_table[index].type1;
 	}
 
 	return 0;
 }
 
-bbb_pin_type getType2(int index) {
+bbb_pin_type bbb_getType2(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].type2;
+		return bbb_pinout_table[index].type2;
 	}
 
 	return 0;
 }
 
-bbb_pin_type getType3(int index) {
+bbb_pin_type bbb_getType3(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].type3;
+		return bbb_pinout_table[index].type3;
 	}
 
 	return 0;
 }
 
-char *getSignalName(int index) {
+char *bbb_getSignalName(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].name;
+		return bbb_pinout_table[index].name;
 	}
 
 	return "undefined";
 }
 
-char *getName(int index) {
+char *bbb_getName(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].name;
+		return bbb_pinout_table[index].name;
 	}
 
 	return "undefined";
@@ -209,12 +209,12 @@ char *getName(int index) {
 
 // 	Index to String Values
 
-char *getPinStrByIndex(int index) {
+char *bbb_getPinStrByIndex(int index) {
 	static char pinstr[10];
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(pinstr, 0, sizeof(pinstr));
-		snprintf(pinstr, sizeof(pinstr), "P%d_%d", pinout_table[index].header, pinout_table[index].pin);
+		snprintf(pinstr, sizeof(pinstr), "P%d_%d", bbb_pinout_table[index].header, bbb_pinout_table[index].pin);
 
 		return pinstr;
 	}
@@ -222,12 +222,12 @@ char *getPinStrByIndex(int index) {
 	return "undefined";
 }
 
-char *getGpioStrByIndex(int index) {
+char *bbb_getGpioStrByIndex(int index) {
 	static char gpiostr[10];
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(gpiostr, 0, sizeof(gpiostr));
-		snprintf(gpiostr, sizeof(gpiostr), "%d", pinout_table[index].gpio);
+		snprintf(gpiostr, sizeof(gpiostr), "%d", bbb_pinout_table[index].gpio);
 
 		return gpiostr;
 	}
@@ -235,12 +235,12 @@ char *getGpioStrByIndex(int index) {
 	return "undefined";
 }
 
-char *getTypeStrByIndex(int index) {
+char *bbb_getTypeStrByIndex(int index) {
 	static char typestr[56];
 
 	if (index >= 0 && index <= bbb_table_size) {
 		memset(typestr, 0, sizeof(typestr));
-		snprintf(typestr, sizeof(typestr), "%s %s %s", pinType2str(pinout_table[index].type1), pinType2str(pinout_table[index].type2), pinType2str(pinout_table[index].type3));
+		snprintf(typestr, sizeof(typestr), "%s %s %s", bbb_pinType2str(bbb_pinout_table[index].type1), bbb_pinType2str(bbb_pinout_table[index].type2), bbb_pinType2str(bbb_pinout_table[index].type3));
 
 		return typestr;
 	}
@@ -248,17 +248,17 @@ char *getTypeStrByIndex(int index) {
 	return "undefined";
 }
 
-char *getSignalNameByIndex(int index) {
+char *bbb_getSignalNameByIndex(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].sig;
+		return bbb_pinout_table[index].sig;
 	}
 
 	return "undefined";
 }
 
-char *getNameByIndex(int index) {
+char *bbb_getNameByIndex(int index) {
 	if (index >= 0 && index <= bbb_table_size) {
-		return pinout_table[index].name;
+		return bbb_pinout_table[index].name;
 	}
 
 	return "undefined";
@@ -266,7 +266,7 @@ char *getNameByIndex(int index) {
 
 //	Types
 
-char *pinType2str(bbb_pin_type type) {
+char *bbb_pinType2str(bbb_pin_type type) {
 	char *ret = "undefined";
 
 	if (type >= BBB_NONE && type <= BBB_SPI) {
@@ -276,7 +276,7 @@ char *pinType2str(bbb_pin_type type) {
 	return ret;
 }
 
-bbb_pin_type str2pinType(char *str) {
+bbb_pin_type bbb_str2pinType(char *str) {
 	int i = 0;
 	bbb_pin_type ret = BBB_NONE;
 
@@ -292,7 +292,7 @@ bbb_pin_type str2pinType(char *str) {
 
 //	ADC
 
-int enableADC() {
+int bbb_enableADC() {
 	int fd = -1;
 	static int ret = -1;
 	char buffer[1024];
@@ -300,7 +300,7 @@ int enableADC() {
 	int size = strlen(ptr);
 	char *wpath = NULL;
 
-	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+	if ((wpath = bbb_wildCardPath(BBB_SLOTS)) != NULL) {
 		if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
 			return -1;
 		}
@@ -325,7 +325,7 @@ int enableADC() {
 	return -1;
 }
 
-int getADC(int id) {
+int bbb_getADC(int id) {
 	int fd = -1;
 	static int ret = -1;
 	char buffer[128];
@@ -335,7 +335,7 @@ int getADC(int id) {
 	memset(path, 0, sizeof(path));
 	snprintf(path, sizeof(path), "%s/AIN%d", BBB_HELPER, id);
 
-	if ((wpath = wildCardPath(path)) != NULL) {
+	if ((wpath = bbb_wildCardPath(path)) != NULL) {
 		if ((fd = open(wpath, O_RDONLY)) < 0) {
 			return -1;
 		}
@@ -354,7 +354,7 @@ int getADC(int id) {
 
 //	I2C
 
-int enableI2Cdevice(int bus, unsigned char address, char *module) {
+int bbb_enableI2Cdevice(int bus, unsigned char address, char *module) {
 	int fd = -1;
 	static int ret = -1;
 	char path[128];
@@ -365,11 +365,11 @@ int enableI2Cdevice(int bus, unsigned char address, char *module) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/%d-00%.2x", BBB_I2CDEVICES, bus, address);
 
-		if ((wpath = wildCardPath(path)) == NULL) {
+		if ((wpath = bbb_wildCardPath(path)) == NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "/sys/bus/i2c/devices/i2c-%d/new_device", bus);
 
-			if ((wpath = wildCardPath(path)) == NULL) {
+			if ((wpath = bbb_wildCardPath(path)) == NULL) {
 				return -1;
 			}
 
@@ -397,7 +397,7 @@ int enableI2Cdevice(int bus, unsigned char address, char *module) {
 	return ret;
 }
 
-int disableI2Cdevice(int bus, unsigned char address) {
+int bbb_disableI2Cdevice(int bus, unsigned char address) {
 	int fd = -1;
 	static int ret = -1;
 	char path[128];
@@ -408,11 +408,11 @@ int disableI2Cdevice(int bus, unsigned char address) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/%d-00%.2x", BBB_I2CDEVICES, bus, address);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "/sys/bus/i2c/devices/i2c-%d/delete_device", bus);
 
-			if ((wpath = wildCardPath(path)) != NULL) {
+			if ((wpath = bbb_wildCardPath(path)) != NULL) {
 				if ((fd = open(wpath, O_WRONLY)) < 0) {
 					return -1;
 				}
@@ -438,7 +438,7 @@ int disableI2Cdevice(int bus, unsigned char address) {
 
 //	GPIO
 
-int enableGpio(int gpio) {
+int bbb_enableGpio(int gpio) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -449,11 +449,11 @@ int enableGpio(int gpio) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) == NULL) {
+		if ((wpath = bbb_wildCardPath(path)) == NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "%s/export", BBB_GPIOP);
 
-			if ((wpath = wildCardPath(path)) != NULL) {
+			if ((wpath = bbb_wildCardPath(path)) != NULL) {
 				if ((fd = open(wpath, O_WRONLY)) < 0) {
 					return -1;
 				}
@@ -477,7 +477,7 @@ int enableGpio(int gpio) {
 	return ret;
 }
 
-int disableGpio(int gpio) {
+int bbb_disableGpio(int gpio) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -488,11 +488,11 @@ int disableGpio(int gpio) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			memset(path, 0, sizeof(path));
 			snprintf(path, sizeof(path), "%s/unexport", BBB_GPIOP);
 
-			if ((wpath = wildCardPath(path)) != NULL) {
+			if ((wpath = bbb_wildCardPath(path)) != NULL) {
 				if ((fd = open(wpath, O_WRONLY)) < 0) {
 					return -1;
 				}
@@ -516,7 +516,7 @@ int disableGpio(int gpio) {
 	return ret;
 }
 
-int setGpioDirection(int gpio, int direction) {
+int bbb_setGpioDirection(int gpio, int direction) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -527,7 +527,7 @@ int setGpioDirection(int gpio, int direction) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/direction", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -553,7 +553,7 @@ int setGpioDirection(int gpio, int direction) {
 	return ret;
 }
 
-int getGpioDirection(int gpio) {
+int bbb_getGpioDirection(int gpio) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -564,7 +564,7 @@ int getGpioDirection(int gpio) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/direction", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -593,7 +593,7 @@ int getGpioDirection(int gpio) {
 	return ret;
 }
 
-int setGpioValue(int gpio, int value) {
+int bbb_setGpioValue(int gpio, int value) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -604,7 +604,7 @@ int setGpioValue(int gpio, int value) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/value", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -625,7 +625,7 @@ int setGpioValue(int gpio, int value) {
 	return ret;
 }
 
-int getGpioValue(int gpio) {
+int bbb_getGpioValue(int gpio) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -636,7 +636,7 @@ int getGpioValue(int gpio) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/gpio%d/value", BBB_GPIOP, gpio);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -659,7 +659,7 @@ int getGpioValue(int gpio) {
 
 //	PWM
 
-int enablePwm(int header, int pin) {
+int bbb_enablePwm(int header, int pin) {
 	int fd = -1;
 	int ret = -1;
 	char buffer[4096];
@@ -668,7 +668,7 @@ int enablePwm(int header, int pin) {
 	int size = strlen(pwm);
 	char *wpath = NULL;
 
-	if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+	if ((wpath = bbb_wildCardPath(BBB_SLOTS)) != NULL) {
 		if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
 			return -1;
 		}
@@ -709,7 +709,7 @@ int enablePwm(int header, int pin) {
 	return -1;
 }
 
-int setPwmPeriod(int header, int pin, int time) {
+int bbb_setPwmPeriod(int header, int pin, int time) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -720,12 +720,12 @@ int setPwmPeriod(int header, int pin, int time) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
                         if ((fd = open(wpath, O_WRONLY)) < 0) {
                                 return -1;
                         }
 
-			if (setPwmDuty(header, pin, 0) < 0) {
+			if (bbb_setPwmDuty(header, pin, 0) < 0) {
 				close(fd);
 				return -1;
 			}
@@ -746,7 +746,7 @@ int setPwmPeriod(int header, int pin, int time) {
 	return ret;
 }
 
-int setPwmDuty(int header, int pin, int time) {
+int bbb_setPwmDuty(int header, int pin, int time) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -757,7 +757,7 @@ int setPwmDuty(int header, int pin, int time) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -778,7 +778,7 @@ int setPwmDuty(int header, int pin, int time) {
 	return ret;
 }
 
-int setPwmHz(int header, int pin, char *hz) {
+int bbb_setPwmHz(int header, int pin, char *hz) {
 	int time = 0;
 	int i, size = 0;
 	char ptr[128];
@@ -852,23 +852,23 @@ int setPwmHz(int header, int pin, char *hz) {
 			}
 		}
 
-		return setPwmPeriod(header, pin, time);
+		return bbb_setPwmPeriod(header, pin, time);
 	}
 
 	return -1;
 }
 
-int setPwmPercent(int header, int pin, int duty) {
-	int time = getPwmPeriod(header, pin);
+int bbb_setPwmPercent(int header, int pin, int duty) {
+	int time = bbb_getPwmPeriod(header, pin);
 
 	if (header > 0 && pin > 0 && duty >= 0 && duty <= 100) {
-		return setPwmDuty(header, pin, ((time / 100) * duty));
+		return bbb_setPwmDuty(header, pin, ((time / 100) * duty));
 	}
 
 	return -1;
 }
 
-int setPwmPolarity(int header, int pin, int polarity) {
+int bbb_setPwmPolarity(int header, int pin, int polarity) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -879,7 +879,7 @@ int setPwmPolarity(int header, int pin, int polarity) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/polarity", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_WRONLY)) < 0) {
 				return -1;
 			}
@@ -900,7 +900,7 @@ int setPwmPolarity(int header, int pin, int polarity) {
 	return ret;
 }
 
-int getPwmPeriod(int header, int pin) {
+int bbb_getPwmPeriod(int header, int pin) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -911,7 +911,7 @@ int getPwmPeriod(int header, int pin) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/period", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -931,7 +931,7 @@ int getPwmPeriod(int header, int pin) {
 	return ret;
 }
 
-int getPwmDuty(int header, int pin) {
+int bbb_getPwmDuty(int header, int pin) {
 	static int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -942,7 +942,7 @@ int getPwmDuty(int header, int pin) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/duty", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -962,11 +962,11 @@ int getPwmDuty(int header, int pin) {
 	return ret;
 }
 
-char *getPwmHz(int header, int pin) {
+char *bbb_getPwmHz(int header, int pin) {
 	static char ptr[128];
 
 	if (header > 0 && pin > 0) {
-		int time = getPwmPeriod(header, pin);
+		int time = bbb_getPwmPeriod(header, pin);
 
 		memset(ptr, 0, sizeof(ptr));
 		snprintf(ptr, sizeof(ptr), "%dHz", (int) (Hz / time));
@@ -977,12 +977,12 @@ char *getPwmHz(int header, int pin) {
 	return "undefined";
 }
 
-int getPwmPercent(int header, int pin) {
+int bbb_getPwmPercent(int header, int pin) {
 	static int ret = -1;
 
 	if (header > 0 && pin > 0) {
-		int period = getPwmPeriod(header, pin);
-		int duty = getPwmDuty(header, pin);
+		int period = bbb_getPwmPeriod(header, pin);
+		int duty = bbb_getPwmDuty(header, pin);
 
 		ret = ((duty * 100) / period);
 	}
@@ -990,7 +990,7 @@ int getPwmPercent(int header, int pin) {
 	return ret;
 }
 
-int getPwmPolarity(int header, int pin) {
+int bbb_getPwmPolarity(int header, int pin) {
 	int ret = -1;
 	int fd = -1;
 	char path[128];
@@ -1001,7 +1001,7 @@ int getPwmPolarity(int header, int pin) {
 		memset(path, 0, sizeof(path));
 		snprintf(path, sizeof(path), "%s/pwm_test_P%d_%d.*/polarity", BBB_OCP2, header, pin);
 
-		if ((wpath = wildCardPath(path)) != NULL) {
+		if ((wpath = bbb_wildCardPath(path)) != NULL) {
 			if ((fd = open(wpath, O_RDONLY)) < 0) {
 				return -1;
 			}
@@ -1023,14 +1023,14 @@ int getPwmPolarity(int header, int pin) {
 
 //	Serial
 
-int enableSerial(int index) {
+int bbb_enableSerial(int index) {
         int fd = -1;
         static int ret = -1;
         char buffer[1024];
         char path[128];
         char *wpath = NULL;
 
-        if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+        if ((wpath = bbb_wildCardPath(BBB_SLOTS)) != NULL) {
                 if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
                         return -1;
                 }
@@ -1060,48 +1060,48 @@ int enableSerial(int index) {
 
 //	Debug
 
-void showByIndex(int index) {
-	LOG("%s %s %s %s %s\n", getPinStrByIndex(index), getGpioStrByIndex(index), getTypeStrByIndex(index), getSignalNameByIndex(index), getNameByIndex(index));
+void bbb_showByIndex(int index) {
+	LOG("%s %s %s %s %s\n", bbb_getPinStrByIndex(index), bbb_getGpioStrByIndex(index), bbb_getTypeStrByIndex(index), bbb_getSignalNameByIndex(index), bbb_getNameByIndex(index));
 }
 
-void showPin(char *str) {
-	showByIndex(getIndexByStr(str));
+void bbb_showPin(char *str) {
+	bbb_showByIndex(bbb_getIndexByStr(str));
 }
 
-void showAll() {
+void bbb_showAll() {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		showByIndex(i);
+		bbb_showByIndex(i);
 	}
 }
 
-void showByType(bbb_pin_type type) {
+void bbb_showByType(bbb_pin_type type) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
-		if (pinout_table[i].type1 == type || pinout_table[i].type2 == type || pinout_table[i].type2 == type) {
-			showByIndex(i);
+		if (bbb_pinout_table[i].type1 == type || bbb_pinout_table[i].type2 == type || bbb_pinout_table[i].type2 == type) {
+			bbb_showByIndex(i);
 		}
 	}
 }
 
-void showByTypeOnly(bbb_pin_type type) {
+void bbb_showByTypeOnly(bbb_pin_type type) {
 	int i;
 
 	for (i = 0; i < bbb_table_size; i++) {
 		int found = 0;
 
-		if (pinout_table[i].type1 == type || pinout_table[i].type2 == type || pinout_table[i].type2 == type) {
+		if (bbb_pinout_table[i].type1 == type || bbb_pinout_table[i].type2 == type || bbb_pinout_table[i].type2 == type) {
 			found = 1;
 		}
 
 		if (type != BBB_ANALOG) {
-			if (pinout_table[i].type1 == type || pinout_table[i].type1 == BBB_GPIO) {
-				if (pinout_table[i].type2 == type || pinout_table[i].type2 == BBB_GPIO) {
-					if (pinout_table[i].type3 == type || pinout_table[i].type3 == BBB_GPIO) {
+			if (bbb_pinout_table[i].type1 == type || bbb_pinout_table[i].type1 == BBB_GPIO) {
+				if (bbb_pinout_table[i].type2 == type || bbb_pinout_table[i].type2 == BBB_GPIO) {
+					if (bbb_pinout_table[i].type3 == type || bbb_pinout_table[i].type3 == BBB_GPIO) {
 						if (found) {
-							showByIndex(i);
+							bbb_showByIndex(i);
 						}
 					}
 				}
@@ -1110,7 +1110,7 @@ void showByTypeOnly(bbb_pin_type type) {
 
 		else {
 			if (found) {
-				showByIndex(i);
+				bbb_showByIndex(i);
 			}
 		}
 	}

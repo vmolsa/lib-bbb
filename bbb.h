@@ -75,7 +75,7 @@ typedef struct _bbb_pinout_gpio {
 	char *name;
 } bbb_pinout_gpio;
 
-static bbb_pinout_gpio pinout_table[] = {
+static bbb_pinout_gpio bbb_pinout_table[] = {
 	{ 8, 1, BBB_NONE, BBB_NONE,  BBB_NONE, BBB_NONE, "GND", "GND", }, 
 	{ 8, 2, BBB_NONE, BBB_NONE,  BBB_NONE, BBB_NONE, "GND", "GND", }, 
 	{ 8, 3, BBB_GPIO1(6), BBB_GPIO, BBB_GPIO, BBB_GPIO, "GPIO1_6", "gpmc_ad6" }, 
@@ -168,83 +168,83 @@ static bbb_pinout_gpio pinout_table[] = {
 	{ 9, 42, BBB_GPIO3(18), BBB_GPIO, BBB_GPIO, BBB_GPIO, "eQEP0A_in", "Mcasp0_aclkr" },
 };
 
-static int bbb_table_size = sizeof(pinout_table) / sizeof(bbb_pinout_gpio);
+static int bbb_table_size = sizeof(bbb_pinout_table) / sizeof(bbb_pinout_gpio);
 
 //	Get Index
 
-int getIndexByStr(char *str);							// P8_3       => 2
-int getIndexByPin(int header, int pin);						// 8, 3       => 2
-int getIndexByGpio(int gpio);							// 38         => 2
-int getIndexBySignalName(char *signalname);					// "GPIO1_6"  => 2
-int getIndexByName(char *name);							// "gpmc_ad6" => 2
+int bbb_getIndexByStr(char *str);						// P8_3       => 2
+int bbb_getIndexByPin(int header, int pin);					// 8, 3       => 2
+int bbb_getIndexByGpio(int gpio);						// 38         => 2
+int bbb_getIndexBySignalName(char *signalname);					// "GPIO1_6"  => 2
+int bbb_getIndexByName(char *name);						// "gpmc_ad6" => 2
 
 //	Index to values
 
-int getHeader(int index);							// 2 => 8
-int getPin(int index);								// 2 => 3
-int getGpio(int index);								// 2 => 38
-bbb_pin_type getType1(int index);						// 2 => BBB_GPIO = 1 
-bbb_pin_type getType2(int index);						// 2 => BBB_GPIO = 1
-bbb_pin_type getType3(int index);						// 2 => BBB_GPIO = 1
-char *getSignalName(int index);							// 2 => "GPIO1_6"
-char *getName(int index);							// 2 => "gpmc_ad6"
+int bbb_getHeader(int index);							// 2 => 8
+int bbb_getPin(int index);							// 2 => 3
+int bbb_getGpio(int index);							// 2 => 38
+bbb_pin_type bbb_getType1(int index);						// 2 => BBB_GPIO = 1 
+bbb_pin_type bbb_getType2(int index);						// 2 => BBB_GPIO = 1
+bbb_pin_type bbb_getType3(int index);						// 2 => BBB_GPIO = 1
+char *bbb_getSignalName(int index);						// 2 => "GPIO1_6"
+char *bbb_getName(int index);							// 2 => "gpmc_ad6"
 
 // 	Index to String Values
 
-char *getPinStrByIndex(int index);						// 2 => "P8_3"
-char *getGpioStrByIndex(int index);						// 2 => "38"
-char *getTypeStrByIndex(int index);						// 2 => "gpio gpio gpio"
-char *getSignalNameByIndex(int index);						// 2 => "GPIO1_6"
-char *getNameByIndex(int index);						// 2 => "gpmc_ad6"
+char *bbb_getPinStrByIndex(int index);						// 2 => "P8_3"
+char *bbb_getGpioStrByIndex(int index);						// 2 => "38"
+char *bbb_getTypeStrByIndex(int index);						// 2 => "gpio gpio gpio"
+char *bbb_getSignalNameByIndex(int index);						// 2 => "GPIO1_6"
+char *bbb_getNameByIndex(int index);						// 2 => "gpmc_ad6"
 
 //	Types
 
-char *pinType2str(bbb_pin_type type);						// 2 => analog
-bbb_pin_type str2pinType(char *str);						// "analog" => 2
+char *bbb_pinType2str(bbb_pin_type type);					// 2 => analog
+bbb_pin_type bbb_str2pinType(char *str);					// "analog" => 2
 
 //	ADC
 
-int enableADC();								// Enables Analog to Digital control
-int getADC(int id);  								// id = "AIN[ID]"
+int bbb_enableADC();								// Enables Analog to Digital control
+int bbb_getADC(int id);  							// id = "AIN[ID]"
 
 //	I2C
 
-int enableI2Cdevice(int bus, unsigned char address, char *module);		// Enables I2C Device on bus number by address
-int disableI2Cdevice(int bus, unsigned char address);				// Disable I2C Device on bus number by address
+int bbb_enableI2Cdevice(int bus, unsigned char address, char *module);		// Enables I2C Device on bus number by address
+int bbb_disableI2Cdevice(int bus, unsigned char address);			// Disable I2C Device on bus number by address
 
 //	GPIO
 
-int enableGpio(int gpio);							// Enables GPIO enableGpio(getGpio(getIndexByStr("P9_12")));
-int disableGpio(int gpio);							// Disables GPIO
+int bbb_enableGpio(int gpio);							// Enables GPIO enableGpio(getGpio(getIndexByStr("P9_12")));
+int bbb_disableGpio(int gpio);							// Disables GPIO
 
-int setGpioDirection(int gpio, int direction);					// 0 == IN && 1 == OUT
-int getGpioDirection(int gpio);							// 0 == IN && 1 == OUT
+int bbb_setGpioDirection(int gpio, int direction);				// 0 == IN && 1 == OUT
+int bbb_getGpioDirection(int gpio);						// 0 == IN && 1 == OUT
 
-int setGpioValue(int gpio, int value);						// 0 == LOW && 1 == HIGH
-int getGpioValue(int gpio);							// 0 == LOW && 1 == HIGH
+int bbb_setGpioValue(int gpio, int value);					// 0 == LOW && 1 == HIGH
+int bbb_getGpioValue(int gpio);							// 0 == LOW && 1 == HIGH
 
 //	PWM
 
-int enablePwm(int header, int pin);						// "P8_13" = 8, 13
+int bbb_enablePwm(int header, int pin);						// "P8_13" = 8, 13
 
-int setPwmPeriod(int header, int pin, int time);				// 20000000 = 0.02 seconds == 50Hz
-int setPwmDuty(int header, int pin, int time);					// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
-int setPwmHz(int header, int pin, char *hz);					// 50Hz, 100kHz, 1MHz, 25 = 25Hz
-int setPwmPercent(int header, int pin, int duty);				// 0 - 100%
-int setPwmPolarity(int header, int pin, int polarity);				// 0 || 1
+int bbb_setPwmPeriod(int header, int pin, int time);				// 20000000 = 0.02 seconds == 50Hz
+int bbb_setPwmDuty(int header, int pin, int time);				// 10000000 = 0.01 seconds == 50Hz / 2 == 50% duty
+int bbb_setPwmHz(int header, int pin, char *hz);				// 50Hz, 100kHz, 1MHz, 25 = 25Hz
+int bbb_setPwmPercent(int header, int pin, int duty);				// 0 - 100%
+int bbb_setPwmPolarity(int header, int pin, int polarity);			// 0 || 1
 
-int getPwmPeriod(int header, int pin);						// 20000000 
-int getPwmDuty(int header, int pin);						// 10000000
-char *getPwmHz(int header, int pin);						// 50Hz
-int getPwmPercent(int header, int pin);						// 50%
-int getPwmPolarity(int header, int pin);					// 0 || 1
+int bbb_getPwmPeriod(int header, int pin);					// 20000000 
+int bbb_getPwmDuty(int header, int pin);					// 10000000
+char *bbb_getPwmHz(int header, int pin);					// 50Hz
+int bbb_getPwmPercent(int header, int pin);					// 50%
+int bbb_getPwmPolarity(int header, int pin);					// 0 || 1
 
 //	Debug
 
-void showByIndex(int index);							// Print values from pinout_table by index 
-void showPin(char *str);							// showByIndex(getIndexByStr("P8_13"));
-void showAll();									// Print table
-void showByType(bbb_pin_type type);						// showByType(str2pinType("pwm"));
-void showByTypeOnly(bbb_pin_type type);						// showByTypeOnly(str2pinType("pwm"));
+void bbb_showByIndex(int index);						// Print values from pinout_table by index 
+void bbb_showPin(char *str);							// showByIndex(getIndexByStr("P8_13"));
+void bbb_showAll();								// Print table
+void bbb_showByType(bbb_pin_type type);						// showByType(str2pinType("pwm"));
+void bbb_showByTypeOnly(bbb_pin_type type);					// showByTypeOnly(str2pinType("pwm"));
 
 #endif
