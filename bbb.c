@@ -34,6 +34,7 @@
 #include <fcntl.h>
 #include <errno.h>
 #include <wordexp.h>
+#include <unistd.h>
 
 #include "bbb.h"
 
@@ -295,7 +296,6 @@ int enableADC() {
 	int fd = -1;
 	static int ret = -1;
 	char buffer[1024];
-	char path[128];
 	char *ptr = "cape-bone-iio";
 	int size = strlen(ptr);
 	char *wpath = NULL;
@@ -663,7 +663,6 @@ int enablePwm(int header, int pin) {
 	int fd = -1;
 	int ret = -1;
 	char buffer[4096];
-	char path[128];
 	char ptr[128];
 	char *pwm = "am33xx_pwm";
 	int size = strlen(pwm);

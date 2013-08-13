@@ -1,9 +1,9 @@
 all:
-	gcc -fPIC -c bbb.c	
+	gcc -Wall -fPIC -c bbb.c	
 	gcc -o bbb main.c bbb.o
 
 	ar -rc lib-bbb.a bbb.o
-	gcc -shared -o lib-bbb.so bbb.o
+	gcc -shared -Wl,-soname,lib-bbb.so.1 -o lib-bbb.so.1.0 bbb.o
 
 install:
 	install -m 0755 ./bbb /usr/local/bin/
