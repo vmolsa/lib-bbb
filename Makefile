@@ -8,7 +8,7 @@ all:
 install:
 	install -m 0755 ./bbb /usr/local/bin/
 	install -m 0644 bbb.h /usr/local/include/
-	install -m 0755 lib-bbb.so /usr/local/lib/
+	install -m 0755 lib-bbb.so.1.0 /usr/local/lib/
 
 clean:
-	rm -f bbb bbb.o lib-bbb.so lib-bbb.a
+	rm -f bbb bbb.o lib-bbb.so.1.0 lib-bbb.a
