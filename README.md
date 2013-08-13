@@ -44,7 +44,9 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c and bbb tool an
          --set-polarity <0 | 1>                                       
          --get-period                                                 
          --get-duty                                                   
-         --get-polarity                                               
+         --get-polarity      
+                                         
+      --enable-serial <[0-5]>
                                                                       
     Examples:                                                         
                                                                       
