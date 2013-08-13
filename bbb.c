@@ -471,6 +471,8 @@ int bbb_enableGpio(int gpio) {
 
 				close(fd);
 			}
+		} else {
+			return 0;
 		}
 	}
 
