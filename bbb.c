@@ -321,6 +321,8 @@ int enableADC() {
 
 		return 0;
 	}
+
+	return -1;
 }
 
 int getADC(int id) {
@@ -1018,6 +1020,43 @@ int getPwmPolarity(int header, int pin) {
 	}
 
 	return ret;
+}
+
+//	Serial
+
+int enableSerial(int index) {
+        int fd = -1;
+        static int ret = -1;
+        char buffer[1024];
+        char path[128];
+        char *wpath = NULL;
+
+        if ((wpath = wildCardPath(BBB_SLOTS)) != NULL) {
+                if ((fd = open(wpath, O_RDWR | O_APPEND)) < 0) {
+                        return -1;
+                }
+
+                memset(buffer, 0, sizeof(buffer));
+
+                if ((ret = read(fd, buffer, sizeof(buffer))) < 0) {
+                        return -1;
+                }
+
+		memset(path, 0, sizeof(path));
+		ret = snprintf(path, sizeof(path), "BB-UART%d", index);
+
+                if (strncmp(buffer, path, ret) != 0) {
+                        LOG("Enabling Serial %s\n", path);
+
+                        if (write(fd, path, ret) != ret) {
+                                return -1;
+                        }
+                }
+
+                return 0;
+        }
+
+	return -1;
 }
 
 //	Debug
