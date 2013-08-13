@@ -66,6 +66,7 @@ static struct option long_options[] = {
 	{ "get-period", 	no_argument, 0, '5' },
 	{ "get-duty", 		no_argument, 0, '6' },
 	{ "get-polarity", 	no_argument, 0, '8' },
+	{ "enable-serial", 	required_argument, 0, 'K' },
 	{ 0, 0, 0, 0 }
 };
 
@@ -113,6 +114,8 @@ static char *help =
 "      --get-period                                                 \n"
 "      --get-duty                                                   \n"
 "      --get-polarity                                               \n"
+"                                                                   \n"
+"   --enable-serial <[0-5]>                                         \n"
 "                                                                   \n"
 " Examples:                                                         \n"
 "                                                                   \n"
@@ -268,6 +271,9 @@ int main(int argc, char **argv) {
 				break;
 			case '9':
 				setpwmperiod = atoi(optarg);
+				break;
+			case 'K':
+				enableSerial(atoi(optarg));
 				break;
 			case 'h':
 			default:

@@ -73,6 +73,8 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c and bbb tool an
     sudo bbb --pwm P8_13 --get-period --get-duty                      
     sudo bbb --pwm P8_13 --set-polarity 0 
 
+    sudo bbb --enable-serial 2
+
 ### Build:
     
     git clone https://github.com/vmolsa/lib-bbb.git
