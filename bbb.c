@@ -1,4 +1,4 @@
-/* Copyright (c) 2013, ville mölsä
+/* Copyright (c) 2013, Ville Mölsä
  * All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without modification,
