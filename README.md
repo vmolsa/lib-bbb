@@ -84,3 +84,8 @@ C api for BeagleBone Black, functions for gpio, analog, pwm, i2c, serial and bbb
     make
     sudo make install
     
+### Linking
+
+    gcc -o progname main.c ../lib-bbb/lib-bbb.a
+    gcc -o progname main.c -l-bbb
+    
